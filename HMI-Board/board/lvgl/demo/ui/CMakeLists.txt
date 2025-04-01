@@ -1,0 +1,20 @@
+SET(SOURCES screens/ui_mainscreen.c
+    screens/ui_medicineinpanel.c
+    screens/ui_medicineoutpanel.c
+    screens/ui_emotion.c
+    ui.c
+    components/ui_comp_hook.c
+    ui_helpers.c
+    ui_events.c
+    images/ui_img_background_png.c
+    images/ui_img_medicine_png.c
+    images/ui_img_smile_png.c
+    images/ui_img_sad_png.c
+    images/ui_img_question_png.c
+    fonts/ui_font_big.c
+    fonts/ui_font_huge.c
+    fonts/ui_font_midbig.c
+    fonts/ui_font_verybig.c
+    fonts/ui_font_small.c)
+
+add_library(ui ${SOURCES})
