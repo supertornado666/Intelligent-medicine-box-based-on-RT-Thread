@@ -10,6 +10,18 @@
 #include "rtc.h"
 #include <rtthread.h>
 #include <rtdevice.h>
+#include "can.h"
+
+static struct rt_semaphore alarm_sem;
+static rt_thread_t alarm_th;
+
+static void alarm_thread_entry(void *parameter){
+    while (1){
+        rt_sem_take(&alarm_sem, RT_WAITING_FOREVER);
+
+
+    }
+}
 
 int rtc_init()
 {
@@ -59,15 +71,20 @@ int rtc_init()
     now = time(RT_NULL);
     rt_kprintf("%s\n", ctime(&now));
 
+    rt_sem_init(&alarm_sem, "ala_sem", 0, RT_IPC_FLAG_FIFO);
+    alarm_th = rt_thread_create("ala_th", alarm_thread_entry, NULL, 1024, 10, 5);
+    rt_thread_startup(alarm_th);
+
     return ret;
 }
 
-void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
+static void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
 {
+    rt_sem_release(&alarm_sem);
     rt_kprintf("user alarm callback function.\n");
 }
 
-void alarm_sample(void)
+void alarm_set(char *tim)
 {
     struct rt_alarm_setup setup;
     struct rt_alarm * alarm = RT_NULL;
@@ -78,7 +95,7 @@ void alarm_sample(void)
         return;
 
     /* 获取当前时间戳，并把下5秒时间设置为闹钟时间 */
-    now = time(NULL) + 5;
+    now = time(RT_NULL) + 5;
     gmtime_r(&now,&p_tm);
 
     setup.flag = RT_ALARM_ONESHOT;
@@ -95,4 +112,21 @@ void alarm_sample(void)
     {
         rt_alarm_start(alarm);
     }
+}
+
+void set_screen_time(void){
+
+    rt_thread_mdelay(8000);
+    time_t now;
+    now = time(RT_NULL);
+    char t[11];
+    sprintf(t, "%ld", now);
+    char str[8] = "times:";
+    rt_memcpy(str + 6, t, 2);
+    rt_kprintf("%s", str);
+    can_send(str, 8);
+    rt_memcpy(str, t + 2, 8);
+    rt_kprintf("%s", str);
+    rt_thread_mdelay(500);
+    can_send(str, 8);
 }

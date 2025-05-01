@@ -11,6 +11,7 @@
 #define SRC_UART2_H_
 
 rt_device_t u2_dev;
+extern struct rt_semaphore pill_freq;
 
 int uart2_init(void);
 

@@ -12,6 +12,7 @@
 #include "spi1.h"
 
 static struct rt_spi_device *spi1_dev = RT_NULL;
+char tx_buf[400];
 
 /**
  * @brief  interface spi bus init
@@ -60,6 +61,10 @@ uint8_t spi1_init(void) {
  * @note      none
  */
 uint8_t spi1_write(uint8_t *buf, uint16_t len) {
+    int s_len = strlen(buf);  // 实际内容长度
+    memset(buf + s_len, ' ', sizeof(buf) - s_len - 1);
+    buf[399] = '\0';
+
     uint8_t send_buf[len];
 
     // 初始化发送缓冲区

@@ -10,17 +10,21 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "uart2.h"
+#include "medication_management.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
 
-struct serial_configure u2_configs = RT_SERIAL_CONFIG_DEFAULT;
-struct rt_semaphore u2_sem;
-rt_thread_t u2_th;
-rt_size_t rx2_len = 0;
+static struct serial_configure u2_configs = RT_SERIAL_CONFIG_DEFAULT;
+static struct rt_semaphore u2_sem;
+struct rt_semaphore pill_freq;
+static rt_thread_t u2_th;
+static rt_size_t rx2_len = 0;
 
-rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
+extern char freq[4];
+
+static rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
     //中断接收
     //rt_sem_release(&u2_sem);
 
@@ -31,7 +35,7 @@ rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
     return RT_EOK;
 }
 
-void serial2_thread_entry(void *parameter){
+static void serial2_thread_entry(void *parameter){
     //中断接收
 //    char buf;
 //    while (1){
@@ -49,6 +53,8 @@ void serial2_thread_entry(void *parameter){
         len = rt_device_read(u2_dev, 0, buf, rx2_len);
         buf[len] = '\0';
 
+        rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
+        add_medicine(buf, atoi(&freq[0]), atoi(&freq[2]));
         rt_kprintf("buf:%s\n", buf);
     }
 }
@@ -80,6 +86,7 @@ int uart2_init(void)
     rt_device_set_rx_indicate(u2_dev, rx2_callback);
 
     rt_sem_init(&u2_sem, "rx2_sem", 0, RT_IPC_FLAG_FIFO);
+    rt_sem_init(&pill_freq, "pill_freq", 0, RT_IPC_FLAG_FIFO);
 
     u2_th = rt_thread_create("u2_recv", serial2_thread_entry, NULL, 1024, 10, 5);
     rt_thread_startup(u2_th);

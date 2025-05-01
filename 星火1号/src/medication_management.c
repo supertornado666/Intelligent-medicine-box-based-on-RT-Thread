@@ -10,6 +10,10 @@
 #include "medication_management.h"
 //实现这些函数（一定要注意说明要求），可额外实现其他可能需要的函数
 
+//条码药名对应列表
+const char *code_name_list[][2] = {
+     {"6938588802324", "阿莫西林胶囊"}
+};
 
 /***********************************************************
 * 名    称： add_medicine(char *bar_code, int times_per_day, int amount)
@@ -22,7 +26,7 @@
 *                自动生成时间示例：输入3，对应take_time赋值为 {"07:00", "12:00", "19:00"}
 * 调用方法：
 **********************************************************/
-int add_medicine(char *bar_code, int times_per_day, int amount);
+int add_medicine(char *bar_code, int times_per_day, int amount){}
 
 /***********************************************************
 * 名    称： del_medicine(int number)
@@ -32,7 +36,7 @@ int add_medicine(char *bar_code, int times_per_day, int amount);
 * 说    明：
 * 调用方法：
 **********************************************************/
-int del_medicine(int number);
+int del_medicine(int number){}
 
 /***********************************************************
 * 名    称： find_medicine(char *time)
@@ -42,7 +46,7 @@ int del_medicine(int number);
 * 说    明：需找到全部药物并组成一个新链表返回
 * 调用方法：
 **********************************************************/
-medicine_info *find_medicine(char *time);
+medicine_info *find_medicine(char *time){}
 
 /***********************************************************
 * 名    称： get_medicine_info(void)
@@ -55,4 +59,4 @@ medicine_info *find_medicine(char *time);
 *               }
 * 调用方法：
 **********************************************************/
-char ***get_medicine_info(void);
+char ***get_medicine_info(void){}

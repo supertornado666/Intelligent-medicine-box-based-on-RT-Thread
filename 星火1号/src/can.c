@@ -13,14 +13,18 @@
 #include <rtdbg.h>
 #include <rtdevice.h>
 #include <stdbool.h>
+#include "commands_def.h"
+#include "uart2.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
-struct rt_semaphore can_rx_sem;     /* 用于接收消息的信号量 */
-rt_device_t can_dev;            /* CAN 设备句柄 */
+static struct rt_semaphore can_rx_sem;     /* 用于接收消息的信号量 */
+static rt_device_t can_dev;            /* CAN 设备句柄 */
 
 char command[9] = {0};
+char freq[4];
+static int num1, num2;
 
 /* 接收数据回调函数 */
 static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
@@ -33,7 +37,6 @@ static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
 
 static void can_rx_thread(void *parameter)
 {
-    rt_err_t res;
     struct rt_can_msg rxmsg = {0};
 
 #ifdef RT_CAN_USING_HDR
@@ -61,28 +64,39 @@ static void can_rx_thread(void *parameter)
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
+        if (strcmp(command, MEDICINE_IN_BEGIN) == 0){
+            rt_device_write(u2_dev, 0, START_SCAN, 1);
+        }
+        else if (strcmp(command, MEDICINE_IN_END) == 0){
+            rt_device_write(u2_dev, 0, FINISH_SCAN, 1);
+        }
+        else if (sscanf(command, "%d,%d", &num1, &num2) == 2){
+            strcpy(freq, command);
+            rt_sem_release(&pill_freq);
+        }
+
         //rt_kprintf("buf:%s\n", command);
     }
 }
 
 int can_send(rt_uint8_t *p_buff, rt_uint32_t len)
 {
-        struct rt_can_msg msg = {0};
-        rt_size_t  size;
+    struct rt_can_msg msg = {0};
+    rt_size_t  size;
 
-        msg.id  = 0x666;              /* ID 为 0x03 */
-        msg.ide = RT_CAN_STDID;     /* 标准格式 */
-        msg.rtr = RT_CAN_DTR;       /* 数据帧 */
-        msg.len = len;                /* 数据长度为 8 */
-        rt_memcpy(&msg.data[0], p_buff, len);
-        /* 发送一帧 CAN 数据 */
-        size = rt_device_write(can_dev, 0, &msg, sizeof(msg) );
-        if (size == 0)
-        {
-            rt_kprintf("CAN send failed: no ack or bus error\n");
-            return -1; // 发送失败
-        }
-        return 0;
+    msg.id  = 0x666;              /* ID 为 0x03 */
+    msg.ide = RT_CAN_STDID;     /* 标准格式 */
+    msg.rtr = RT_CAN_DTR;       /* 数据帧 */
+    msg.len = len;                /* 数据长度为 8 */
+    rt_memcpy(&msg.data[0], p_buff, len);
+    /* 发送一帧 CAN 数据 */
+    size = rt_device_write(can_dev, 0, &msg, sizeof(msg) );
+    if (size == 0)
+    {
+        rt_kprintf("CAN send failed: no ack or bus error\n");
+        return -1; // 发送失败
+    }
+    return 0;
 }
 
 int can_init(void){

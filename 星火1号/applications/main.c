@@ -24,7 +24,8 @@
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
 
-time_t now;
+#define PIN_KEY0 GET_PIN(C, 0)
+#define PIN_KEY1 GET_PIN(C, 1)
 
 int main(void)
 {
@@ -36,15 +37,11 @@ int main(void)
     spi1_init();
     wifi_init();
 
-    char tx_buf[400] = "@message from master$";
-    int len = strlen(tx_buf);  // 实际内容长度
-    memset(tx_buf + len, 'F', sizeof(tx_buf) - len - 1);
-    tx_buf[399] = '\0';
-    while (1)
-    {
-        spi1_write(tx_buf, sizeof(tx_buf));
-        rt_thread_mdelay(2000);
-    }
+    set_screen_time();
+
+//    while (1) {
+//
+//    }
 
     return 0;
 }

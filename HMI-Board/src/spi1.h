@@ -12,8 +12,8 @@
 
 #include <rtthread.h>
 
-#define SPI_CS_PIN  BSP_IO_PORT_05_PIN_06
-extern rt_device_t spi1_dev;
+//#define SPI_CS_PIN  BSP_IO_PORT_05_PIN_06
+
 extern char rx_buf[400];
 
 int spi1_init(void);

@@ -10,11 +10,6 @@
 #ifndef SRC_MEDICATION_MANAGEMENT_H_
 #define SRC_MEDICATION_MANAGEMENT_H_
 
-//条码药名对应列表
-const char *code_name_list[][2] = {
-     {"6938588802324", "阿莫西林胶囊"}
-};
-
 typedef struct medicine_info {
     char name[20];          //药名
     char take_time[3][6];   //服用时间，最多一天3次

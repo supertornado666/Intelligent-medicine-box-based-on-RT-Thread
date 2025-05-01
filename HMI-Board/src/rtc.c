@@ -48,7 +48,7 @@ int user_rtc_init(void)
         return RT_ERROR;
     }
     /* 设置日期 */
-    ret = set_date(2025, 03, 20);
+    //ret = set_date(2025, 03, 20);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC date failed\n");
@@ -56,7 +56,7 @@ int user_rtc_init(void)
     }
 
     /* 设置时间 */
-    ret = set_time(23, 58, 50);
+    //ret = set_time(23, 58, 50);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC time failed\n");

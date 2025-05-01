@@ -5,17 +5,17 @@
 
 #include "ui.h"
 #include <rtthread.h>
-#include "src/uart4.h"
-#include "src/can.h"
-#include "src/commands_def.h"
+#include "uart4.h"
+#include "can.h"
+#include "commands_def.h"
 #include <stdio.h>
 #include <rtdevice.h>
 #include <rtdbg.h>
 #include <r_gpt.h>
 #include "hal_data.h"
-#include "src/standby_timer.h"
+#include "standby_timer.h"
 #include "llm.h"
-#include "src/event.h"
+#include "event.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG

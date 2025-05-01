@@ -10,6 +10,8 @@
 #ifndef SRC_SPI1_H_
 #define SRC_SPI1_H_
 
+extern char tx_buf[400];
+
 uint8_t spi1_init(void);
 uint8_t spi1_write(uint8_t *buf, uint16_t len);
 uint8_t spi1_read(uint8_t *buf, uint16_t len);

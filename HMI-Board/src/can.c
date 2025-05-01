@@ -25,6 +25,27 @@ static rt_device_t can_dev;            /* CAN 设备句柄 */
 char command[9] = {0};
 extern struct rt_semaphore read_sem, show_sem;
 extern bool inback_flag;
+static char timset[11];
+static bool time_flag = false;
+
+static void check_time(char *command){
+    if (strncmp(command, "times:", 6) == 0)  // 前 6 个字符等于 "times:"
+    {
+        rt_memcpy(timset, command + 6, 2);
+        time_flag = true;
+    }
+    else if (time_flag){
+        rt_memcpy(timset + 2, command, 8);
+        timset[10] = '\0';
+        rt_kprintf("%s\n", timset);
+        time_t timestamp;
+        timestamp = strtol(timset, NULL, 10);
+        set_timestamp(timestamp);
+        time_flag = false;
+    }
+
+    return;
+}
 
 /* 接收数据回调函数 */
 static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
@@ -69,6 +90,7 @@ static void can_rx_thread(void *parameter)
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
+        check_time(command);
         //rt_kprintf("buf:%s\n", command);
         if (strcmp(command, SHOW_SMILE) >= 0 && strcmp(command, SHOW_EMO_END) <= 0) {
             rt_sem_release(&show_sem);

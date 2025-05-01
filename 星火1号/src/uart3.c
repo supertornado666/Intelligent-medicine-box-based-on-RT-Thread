@@ -15,12 +15,12 @@
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
 
-struct serial_configure u3_configs = RT_SERIAL_CONFIG_DEFAULT;
-struct rt_semaphore u3_sem;
-rt_thread_t u3_th;
-rt_size_t rx3_len = 0;
+static struct serial_configure u3_configs = RT_SERIAL_CONFIG_DEFAULT;
+static struct rt_semaphore u3_sem;
+static rt_thread_t u3_th;
+static rt_size_t rx3_len = 0;
 
-rt_err_t rx3_callback(rt_device_t dev, rt_size_t size){
+static rt_err_t rx3_callback(rt_device_t dev, rt_size_t size){
     //中断接收
     rt_sem_release(&u3_sem);
 
@@ -31,7 +31,7 @@ rt_err_t rx3_callback(rt_device_t dev, rt_size_t size){
     return RT_EOK;
 }
 
-void serial3_thread_entry(void *parameter){
+static void serial3_thread_entry(void *parameter){
     //中断接收
 //    char buf;
 //    while (1){
