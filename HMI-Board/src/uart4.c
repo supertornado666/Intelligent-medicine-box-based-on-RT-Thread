@@ -61,7 +61,9 @@ static void serial_thread_entry(void *parameter){
         rt_sem_take(&u4_sem, RT_WAITING_FOREVER);
         len = rt_device_read(u4_dev, 0, msg, rx_len);
         msg[len] = '\0';
+        rt_kprintf("%s", msg);
 
+        /*
         if (rt_strstr(msg, "病情") != RT_NULL){
             rt_event_send(speak_event, EVENT_GET_INFO);
             //rt_sem_release(&call_deepseek_sem);
@@ -74,6 +76,8 @@ static void serial_thread_entry(void *parameter){
             //rt_sem_release(&call_deepseek_sem);
             //rt_sem_release(&info_sem);
         }
+        */
+
         /*
         if (command[0] >= 'E' && command[0] <= 'H') {
             rt_sem_release(&show_sem);
@@ -105,7 +109,7 @@ int uart4_init(void){
     rt_device_control(u4_dev, RT_DEVICE_CTRL_CONFIG, (void *)&u4_configs);
     rt_device_set_rx_indicate(u4_dev, rx_callback);
     rt_sem_init(&u4_sem, "rx_sem", 0, RT_IPC_FLAG_FIFO);
-    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 512, 22, 5);
+    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1024, 22, 5);
     rt_thread_startup(u4_th);
 
     return 0;

@@ -3,7 +3,7 @@
         #define VECTOR_DATA_H
                 /* Number of interrupts allocated */
         #ifndef VECTOR_DATA_IRQ_COUNT
-        #define VECTOR_DATA_IRQ_COUNT    (48)
+        #define VECTOR_DATA_IRQ_COUNT    (50)
         #endif
         /* ISR prototypes */
         void sci_uart_rxi_isr(void);
@@ -125,12 +125,16 @@
         #define SDHIMMC0_ACCS_IRQn          ((IRQn_Type) 42) /* SDHIMMC0 ACCS (Card access) */
         #define VECTOR_NUMBER_SDHIMMC0_CARD ((IRQn_Type) 43) /* SDHIMMC0 CARD (Card detect) */
         #define SDHIMMC0_CARD_IRQn          ((IRQn_Type) 43) /* SDHIMMC0 CARD (Card detect) */
-        #define VECTOR_NUMBER_SPI1_RXI ((IRQn_Type) 44) /* SPI1 RXI (Receive buffer full) */
-        #define SPI1_RXI_IRQn          ((IRQn_Type) 44) /* SPI1 RXI (Receive buffer full) */
-        #define VECTOR_NUMBER_SPI1_TXI ((IRQn_Type) 45) /* SPI1 TXI (Transmit buffer empty) */
-        #define SPI1_TXI_IRQn          ((IRQn_Type) 45) /* SPI1 TXI (Transmit buffer empty) */
-        #define VECTOR_NUMBER_SPI1_TEI ((IRQn_Type) 46) /* SPI1 TEI (Transmission complete event) */
-        #define SPI1_TEI_IRQn          ((IRQn_Type) 46) /* SPI1 TEI (Transmission complete event) */
-        #define VECTOR_NUMBER_SPI1_ERI ((IRQn_Type) 47) /* SPI1 ERI (Error) */
-        #define SPI1_ERI_IRQn          ((IRQn_Type) 47) /* SPI1 ERI (Error) */
+        #define VECTOR_NUMBER_DMAC1_INT ((IRQn_Type) 44) /* DMAC1 INT (DMAC transfer end 1) */
+        #define DMAC1_INT_IRQn          ((IRQn_Type) 44) /* DMAC1 INT (DMAC transfer end 1) */
+        #define VECTOR_NUMBER_SPI1_RXI ((IRQn_Type) 45) /* SPI1 RXI (Receive buffer full) */
+        #define SPI1_RXI_IRQn          ((IRQn_Type) 45) /* SPI1 RXI (Receive buffer full) */
+        #define VECTOR_NUMBER_SPI1_TXI ((IRQn_Type) 46) /* SPI1 TXI (Transmit buffer empty) */
+        #define SPI1_TXI_IRQn          ((IRQn_Type) 46) /* SPI1 TXI (Transmit buffer empty) */
+        #define VECTOR_NUMBER_SPI1_TEI ((IRQn_Type) 47) /* SPI1 TEI (Transmission complete event) */
+        #define SPI1_TEI_IRQn          ((IRQn_Type) 47) /* SPI1 TEI (Transmission complete event) */
+        #define VECTOR_NUMBER_SPI1_ERI ((IRQn_Type) 48) /* SPI1 ERI (Error) */
+        #define SPI1_ERI_IRQn          ((IRQn_Type) 48) /* SPI1 ERI (Error) */
+        #define VECTOR_NUMBER_ICU_IRQ15 ((IRQn_Type) 49) /* ICU IRQ15 (External pin interrupt 15) */
+        #define ICU_IRQ15_IRQn          ((IRQn_Type) 49) /* ICU IRQ15 (External pin interrupt 15) */
         #endif /* VECTOR_DATA_H */

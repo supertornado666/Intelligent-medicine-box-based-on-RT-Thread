@@ -48,10 +48,12 @@
             [41] = rtc_carry_isr, /* RTC CARRY (Carry interrupt) */
             [42] = sdhimmc_accs_isr, /* SDHIMMC0 ACCS (Card access) */
             [43] = sdhimmc_card_isr, /* SDHIMMC0 CARD (Card detect) */
-            [44] = spi_rxi_isr, /* SPI1 RXI (Receive buffer full) */
-            [45] = spi_txi_isr, /* SPI1 TXI (Transmit buffer empty) */
-            [46] = spi_tei_isr, /* SPI1 TEI (Transmission complete event) */
-            [47] = spi_eri_isr, /* SPI1 ERI (Error) */
+            [44] = dmac_int_isr, /* DMAC1 INT (DMAC transfer end 1) */
+            [45] = spi_rxi_isr, /* SPI1 RXI (Receive buffer full) */
+            [46] = spi_txi_isr, /* SPI1 TXI (Transmit buffer empty) */
+            [47] = spi_tei_isr, /* SPI1 TEI (Transmission complete event) */
+            [48] = spi_eri_isr, /* SPI1 ERI (Error) */
+            [49] = r_icu_isr, /* ICU IRQ15 (External pin interrupt 15) */
         };
         const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_MAX_ENTRIES] =
         {
@@ -99,9 +101,11 @@
             [41] = BSP_PRV_IELS_ENUM(EVENT_RTC_CARRY), /* RTC CARRY (Carry interrupt) */
             [42] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_ACCS), /* SDHIMMC0 ACCS (Card access) */
             [43] = BSP_PRV_IELS_ENUM(EVENT_SDHIMMC0_CARD), /* SDHIMMC0 CARD (Card detect) */
-            [44] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI), /* SPI1 RXI (Receive buffer full) */
-            [45] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI), /* SPI1 TXI (Transmit buffer empty) */
-            [46] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI), /* SPI1 TEI (Transmission complete event) */
-            [47] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI), /* SPI1 ERI (Error) */
+            [44] = BSP_PRV_IELS_ENUM(EVENT_DMAC1_INT), /* DMAC1 INT (DMAC transfer end 1) */
+            [45] = BSP_PRV_IELS_ENUM(EVENT_SPI1_RXI), /* SPI1 RXI (Receive buffer full) */
+            [46] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TXI), /* SPI1 TXI (Transmit buffer empty) */
+            [47] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI), /* SPI1 TEI (Transmission complete event) */
+            [48] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI), /* SPI1 ERI (Error) */
+            [49] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ15), /* ICU IRQ15 (External pin interrupt 15) */
         };
         #endif

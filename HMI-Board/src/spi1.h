@@ -10,6 +10,12 @@
 #ifndef SRC_SPI1_H_
 #define SRC_SPI1_H_
 
+#include <rtthread.h>
+
+#define SPI_CS_PIN  BSP_IO_PORT_05_PIN_06
+extern rt_device_t spi1_dev;
+extern char rx_buf[400];
+
 int spi1_init(void);
 
 #endif /* SRC_SPI1_H_ */

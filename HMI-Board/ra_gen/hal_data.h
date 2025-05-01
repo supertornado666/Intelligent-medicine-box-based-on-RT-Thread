@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_icu.h"
+#include "r_external_irq_api.h"
 #include "r_dtc.h"
 #include "r_transfer_api.h"
 #include "r_spi.h"
@@ -25,14 +27,22 @@
 #include "r_ether_api.h"
 #include "r_sci_spi.h"
 #include "r_spi_api.h"
-#include "r_icu.h"
-#include "r_external_irq_api.h"
 #include "r_can.h"
 #include "r_can_api.h"
 #include "r_jpeg.h"
 #include "r_glcdc.h"
             #include "r_display_api.h"
 FSP_HEADER
+/** External IRQ on ICU Instance. */
+extern const external_irq_instance_t g_external_irq15;
+
+/** Access the ICU instance using these structures when calling API functions directly (::p_api is not used). */
+extern icu_instance_ctrl_t g_external_irq15_ctrl;
+extern const external_irq_cfg_t g_external_irq15_cfg;
+
+#ifndef irq15_callback
+void irq15_callback(external_irq_callback_args_t * p_args);
+#endif
 /* Transfer on DTC Instance. */
 extern const transfer_instance_t g_transfer12;
 

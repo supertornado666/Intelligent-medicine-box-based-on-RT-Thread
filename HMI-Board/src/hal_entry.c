@@ -19,6 +19,7 @@
 #include "llm.h"
 #include "spi1.h"
 #include "event.h"
+#include "syn8086.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -35,6 +36,7 @@ void hal_entry(void)
     can_init();
     spi1_init();
     speak_event_init();
+    SYN_FrameInfo("[v1]");
 
     rt_wlan_connect("Redmi K60 Pro", "jh15988597685");
 
