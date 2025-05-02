@@ -15,6 +15,7 @@
 #include <rtdevice.h>
 #include "standby_timer.h"
 #include "commands_def.h"
+#include "demo/ui/ui.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -26,6 +27,7 @@ char command[9] = {0};
 extern struct rt_semaphore read_sem, show_sem;
 extern bool inback_flag;
 static char timset[11];
+static char ahtset[35] = "温度:00.0℃    湿度:00.0%";
 static bool time_flag = false;
 
 static void check_time(char *command){
@@ -42,6 +44,20 @@ static void check_time(char *command){
         timestamp = strtol(timset, NULL, 10);
         set_timestamp(timestamp);
         time_flag = false;
+    }
+
+    return;
+}
+
+static void check_aht(char *command){
+    if (strncmp(command, "hum:", 4) == 0)  // 前 6 个字符等于 "times:"
+    {
+        rt_memcpy(&ahtset[22], command + 4, 4);
+    }
+    else if (strncmp(command, "tem:", 4) == 0){
+        rt_memcpy(&ahtset[7], command + 4, 4);
+        rt_kprintf("%s\n", ahtset);
+        lv_label_set_text(ui_aht, ahtset);
     }
 
     return;
@@ -91,6 +107,7 @@ static void can_rx_thread(void *parameter)
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
         check_time(command);
+        check_aht(command);
         //rt_kprintf("buf:%s\n", command);
         if (strcmp(command, SHOW_SMILE) >= 0 && strcmp(command, SHOW_EMO_END) <= 0) {
             rt_sem_release(&show_sem);

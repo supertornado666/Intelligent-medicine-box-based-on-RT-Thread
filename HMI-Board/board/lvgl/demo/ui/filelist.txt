@@ -14,5 +14,5 @@ images/ui_img_question_png.c
 fonts/ui_font_big.c
 fonts/ui_font_huge.c
 fonts/ui_font_midbig.c
-fonts/ui_font_verybig.c
 fonts/ui_font_small.c
+fonts/ui_font_verybig.c

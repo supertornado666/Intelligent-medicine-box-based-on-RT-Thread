@@ -19,6 +19,7 @@
 #include "uart3.h"
 #include "uart4.h"
 #include "spi1.h"
+#include "myaht10.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
@@ -38,6 +39,7 @@ int main(void)
     wifi_init();
 
     set_screen_time();
+    myaht10_init();
 
 //    while (1) {
 //

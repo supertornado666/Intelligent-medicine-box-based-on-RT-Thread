@@ -92,6 +92,8 @@
 #define RT_USING_RTC
 #define RT_USING_ALARM
 #define RT_USING_SPI
+#define RT_USING_SENSOR
+#define RT_USING_SENSOR_CMD
 #define RT_USING_WIFI
 #define RT_WLAN_DEVICE_STA_NAME "wlan0"
 #define RT_WLAN_DEVICE_AP_NAME "wlan1"
@@ -321,10 +323,16 @@
 /* AT32 HAL & SDK Drivers */
 
 /* end of AT32 HAL & SDK Drivers */
+
+/* HC32 DDL Drivers */
+
+/* end of HC32 DDL Drivers */
 /* end of HAL & SDK Drivers */
 
 /* sensors drivers */
 
+#define PKG_USING_AHT10
+#define PKG_USING_AHT10_V210
 /* end of sensors drivers */
 
 /* touch drivers */
@@ -412,6 +420,7 @@
 
 #define BSP_USING_USB_TO_USART
 #define BSP_USING_RW007_WLAN
+#define BSP_USING_AHT21
 #define BSP_USING_CAN
 #define BSP_USING_CAN1
 /* end of Onboard Peripheral Drivers */
@@ -438,6 +447,10 @@
 #define BSP_SPI1_TX_USING_DMA
 #define BSP_SPI1_RX_USING_DMA
 #define BSP_USING_SPI2
+#define BSP_USING_I2C
+#define BSP_USING_I2C3
+#define BSP_I2C3_SCL_PIN 64
+#define BSP_I2C3_SDA_PIN 65
 /* end of On-chip Peripheral Drivers */
 
 /* Board extended module Drivers */

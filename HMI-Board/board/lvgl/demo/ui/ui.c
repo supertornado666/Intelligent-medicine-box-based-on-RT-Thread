@@ -27,6 +27,7 @@ lv_obj_t * ui_medicineouttext;
 lv_obj_t * ui_time;
 lv_obj_t * ui_fingertext;
 lv_obj_t * ui_date;
+lv_obj_t * ui_aht;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_medicineinpanel

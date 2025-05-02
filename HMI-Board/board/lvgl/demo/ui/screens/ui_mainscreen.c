@@ -171,6 +171,15 @@ void ui_mainscreen_screen_init(void)
     lv_label_set_text(ui_date, "");
     lv_obj_set_style_text_font(ui_date, &ui_font_big, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_aht = lv_label_create(ui_mainscreen);
+    lv_obj_set_width(ui_aht, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_aht, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_aht, 0);
+    lv_obj_set_y(ui_aht, 30);
+    lv_obj_set_align(ui_aht, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_aht, "");
+    lv_obj_set_style_text_font(ui_aht, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_diseasebutton, ui_event_diseasebutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_loginoutbutton, ui_event_loginoutbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_medicineinbutton, ui_event_medicineinbutton, LV_EVENT_ALL, NULL);

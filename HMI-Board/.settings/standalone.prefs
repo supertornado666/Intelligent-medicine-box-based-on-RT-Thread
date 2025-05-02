@@ -1,4 +1,4 @@
-#Tue Apr 29 18:56:55 CST 2025
+#Thu May 01 22:28:17 CST 2025
 com.renesas.cdt.ddsc.packs.componentfiles/Renesas\#\#HAL\ Drivers\#\#all\#\#r_sdhi\#\#\#\#3.5.0/libraries=
 com.renesas.cdt.ddsc.threads.configurator/collapse/module.driver.spi_on_spi.1759804475=false
 com.renesas.cdt.ddsc.packs.componentfiles/Renesas\#\#HAL\ Drivers\#\#all\#\#r_rtc\#\#\#\#3.5.0/all=2525454394,ra/fsp/inc/instances/r_rtc.h|3267174292,ra/fsp/src/r_rtc/r_rtc.c|1942362170,ra/fsp/inc/api/r_rtc_api.h|1715786639,ra/fsp/inc/api/r_cgc_api.h

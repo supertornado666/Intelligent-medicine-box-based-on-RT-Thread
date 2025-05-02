@@ -14,7 +14,7 @@ SET(SOURCES screens/ui_mainscreen.c
     fonts/ui_font_big.c
     fonts/ui_font_huge.c
     fonts/ui_font_midbig.c
-    fonts/ui_font_verybig.c
-    fonts/ui_font_small.c)
+    fonts/ui_font_small.c
+    fonts/ui_font_verybig.c)
 
 add_library(ui ${SOURCES})

@@ -35,6 +35,7 @@ extern lv_obj_t * ui_medicineouttext;
 extern lv_obj_t * ui_time;
 extern lv_obj_t * ui_fingertext;
 extern lv_obj_t * ui_date;
+extern lv_obj_t * ui_aht;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_medicineinpanel
@@ -106,8 +107,8 @@ LV_IMG_DECLARE(ui_img_question_png);    // assets/question.png
 LV_FONT_DECLARE(ui_font_big);
 LV_FONT_DECLARE(ui_font_huge);
 LV_FONT_DECLARE(ui_font_midbig);
-LV_FONT_DECLARE(ui_font_verybig);
 LV_FONT_DECLARE(ui_font_small);
+LV_FONT_DECLARE(ui_font_verybig);
 
 // UI INIT
 void ui_init(void);
