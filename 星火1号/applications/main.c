@@ -41,9 +41,10 @@ int main(void)
     set_screen_time();
     myaht10_init();
 
-//    while (1) {
-//
-//    }
+    while (1) {
+        rt_thread_mdelay(30000);
+        set_screen_time();
+    }
 
     return 0;
 }

@@ -112,9 +112,8 @@ static void can_rx_thread(void *parameter)
         if (strcmp(command, SHOW_SMILE) >= 0 && strcmp(command, SHOW_EMO_END) <= 0) {
             rt_sem_release(&show_sem);
             //rt_kprintf("buf:%s\n", command);
+            backlight_on();
         }
-
-        backlight_on();
     }
 }
 
