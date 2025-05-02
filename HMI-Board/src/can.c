@@ -52,7 +52,7 @@ static void check_time(char *command){
 static void check_aht(char *command){
     if (strncmp(command, "hum:", 4) == 0)  // 前 6 个字符等于 "times:"
     {
-        rt_memcpy(&ahtset[22], command + 4, 4);
+        rt_memcpy(&ahtset[25], command + 4, 4);
     }
     else if (strncmp(command, "tem:", 4) == 0){
         rt_memcpy(&ahtset[7], command + 4, 4);
