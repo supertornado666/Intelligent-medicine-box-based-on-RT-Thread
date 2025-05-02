@@ -16,10 +16,21 @@ static struct rt_semaphore alarm_sem;
 static rt_thread_t alarm_th;
 
 static void alarm_thread_entry(void *parameter){
+    time_t now;
+    int hour, minute;
+    struct tm timeinfo;
+    char str[6];
+
     while (1){
         rt_sem_take(&alarm_sem, RT_WAITING_FOREVER);
 
+        now = time(RT_NULL);
+        gmtime_r(&now, &timeinfo);   // 转为结构体形式（UTC时间）
 
+        hour = timeinfo.tm_hour;
+        minute = timeinfo.tm_min;
+        sprintf(str, "%02d:%02d", hour, minute);
+        find_medicine(str);
     }
 }
 
@@ -87,30 +98,37 @@ static void user_alarm_callback(rt_alarm_t alarm, time_t timestamp)
 void alarm_set(char *tim)
 {
     struct rt_alarm_setup setup;
-    struct rt_alarm * alarm = RT_NULL;
-    static time_t now;
-    struct tm p_tm;
+    struct rt_alarm *alarm = RT_NULL;
+    int hour = 0, min = 0;
 
-    if (alarm != RT_NULL)
+    // 解析 "00:00" 形式的时间字符串
+    if (sscanf(tim, "%d:%d", &hour, &min) != 2)
+    {
+        rt_kprintf("时间格式错误，应为 HH:MM\n");
         return;
+    }
 
-    /* 获取当前时间戳，并把下5秒时间设置为闹钟时间 */
-    now = time(RT_NULL) + 5;
-    gmtime_r(&now,&p_tm);
+    // 设置为每天重复的闹钟
+    setup.flag = RT_ALARM_DAILY;
+    setup.wktime.tm_hour = hour;
+    setup.wktime.tm_min = min;
+    setup.wktime.tm_sec = 0;
 
-    setup.flag = RT_ALARM_ONESHOT;
-    setup.wktime.tm_year = p_tm.tm_year;
-    setup.wktime.tm_mon = p_tm.tm_mon;
-    setup.wktime.tm_mday = p_tm.tm_mday;
-    setup.wktime.tm_wday = p_tm.tm_wday;
-    setup.wktime.tm_hour = p_tm.tm_hour;
-    setup.wktime.tm_min = p_tm.tm_min;
-    setup.wktime.tm_sec = p_tm.tm_sec;
+//    // 其余字段可以不填或设为0，因为每天重复时只看时分秒
+//    setup.wktime.tm_year = 0;
+//    setup.wktime.tm_mon  = 0;
+//    setup.wktime.tm_mday = 0;
+//    setup.wktime.tm_wday = 0;
 
     alarm = rt_alarm_create(user_alarm_callback, &setup);
-    if(RT_NULL != alarm)
+    if (alarm != RT_NULL)
     {
         rt_alarm_start(alarm);
+        //rt_kprintf("每天 %02d:%02d 的闹钟已设置\n", hour, min);
+    }
+    else
+    {
+        //rt_kprintf("闹钟创建失败！\n");
     }
 }
 

@@ -25,6 +25,30 @@ static rt_device_t can_dev;            /* CAN 设备句柄 */
 char command[9] = {0};
 char freq[4];
 static int num1, num2;
+static bool pill_out_flag = false;
+
+void check_out(char *command){
+    if (strcmp(command, MEDICINE_OUT_END) == 0){
+        pill_out_flag = false;
+        return;
+    }
+
+    if (strcmp(command, MEDICINE_OUT_1) == 0){
+        del_medicine(1);
+    }
+    else if (strcmp(command, MEDICINE_OUT_2) == 0){
+        del_medicine(2);
+    }
+    else if (strcmp(command, MEDICINE_OUT_3) == 0){
+        del_medicine(3);
+    }
+    else if (strcmp(command, MEDICINE_OUT_4) == 0){
+        del_medicine(4);
+    }
+    else if (strcmp(command, MEDICINE_OUT_5) == 0){
+        del_medicine(5);
+    }
+}
 
 /* 接收数据回调函数 */
 static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
@@ -64,6 +88,15 @@ static void can_rx_thread(void *parameter)
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
+        if (strcmp(command, MEDICINE_OUT_BEGIN) == 0){
+            pill_out_flag = true;
+            continue;
+        }
+        else if (pill_out_flag){
+            check_out(command);
+            continue;
+        }
+
         if (strcmp(command, MEDICINE_IN_BEGIN) == 0){
             rt_device_write(u2_dev, 0, START_SCAN, 1);
         }
@@ -73,6 +106,10 @@ static void can_rx_thread(void *parameter)
         else if (sscanf(command, "%d,%d", &num1, &num2) == 2){
             strcpy(freq, command);
             rt_sem_release(&pill_freq);
+        }
+        else if (strcmp(command, MEDICINE_GET_INFO) == 0){
+            get_medicine_info();
+            //spi1_write();
         }
 
         //rt_kprintf("buf:%s\n", command);
