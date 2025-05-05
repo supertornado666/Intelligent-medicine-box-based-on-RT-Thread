@@ -17,6 +17,8 @@ sensor.set_auto_gain(False)  # 必须关闭此功能，以防止图像冲洗…
 sensor.set_auto_whitebal(False)  # 必须关闭此功能，以防止图像冲洗…
 clock = time.clock()
 
+led = pyb.LED(3)
+
 uart = UART(3,115200,bits=8, parity=None, stop=1, timeout_char = 1000)#初始化串口三、波特率115200 TXD:P4\PB10 RXD:P5\PB11
 
 flag = False  # 全局标志位，表示是否需要启动扫描
@@ -27,7 +29,7 @@ def uart_rx_callback(line):
     flag = True  # 被唤醒，准备处理数据
 
 # 初始化 UART RX 引脚为中断源（P5 对应引脚编号为 'P5'）
-extint = ExtInt('P5', ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, uart_rx_callback)
+extint = ExtInt('P7', ExtInt.IRQ_RISING, pyb.Pin.PULL_UP, uart_rx_callback)
 
 def send_codenum(codenum):#功能发送五个无符号字符（unsigned char）
     global uart;
@@ -47,11 +49,16 @@ def start_scan():
         if codes:
             #img.draw_rectangle(code.rect())
             send_codenum(codes[0].payload())
+            led.off()
             break
         if flag:
-            pyb.delay(100)
+            pyb.delay(200)
             flag = False
-            break
+            led.off()
+            if uart.any():
+                command = uart.read(1)
+                if command == FINISH_SCAN:
+                    break
 
 # 条形码检测可以在OpenMV Cam的OV7725相机模块的640x480分辨率下运行。
 # 条码检测也将在RGB565模式下工作，但分辨率较低。 也就是说，
@@ -59,9 +66,14 @@ def start_scan():
 
 while True:
     if flag:
-        pyb.delay(100)
+        #print("wake")
+        pyb.delay(200)
         flag = False
-
-        start_scan()
+        if uart.any():
+            command = uart.read(1)
+            #print(command)
+            if command == START_SCAN:
+                led.on()
+                start_scan()
 
     pyb.stop()

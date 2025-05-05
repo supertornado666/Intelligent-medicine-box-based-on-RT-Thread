@@ -12,6 +12,8 @@
 
 #include <rtdevice.h>
 
+#define SCAN_PIN GET_PIN(A, 8)
+
 extern char command[9];
 
 int can_send(rt_uint8_t *p_buff, rt_uint32_t len);

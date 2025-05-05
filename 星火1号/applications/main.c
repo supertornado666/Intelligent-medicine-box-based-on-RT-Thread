@@ -20,6 +20,7 @@
 #include "uart4.h"
 #include "spi1.h"
 #include "myaht10.h"
+#include "mqtt.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
@@ -30,16 +31,21 @@
 
 int main(void)
 {
+    rt_pin_mode(SCAN_PIN, PIN_MODE_OUTPUT);
+
     rtc_init();
     uart2_init();
     uart3_init();
     uart4_init();
     can_init();
     spi1_init();
-    wifi_init();
+    wifi_connect();
 
     set_screen_time();
     myaht10_init();
+    aht_mqtt_init();
+    rt_thread_mdelay(500);
+    identity_mqtt_change();
 
     while (1) {
         rt_thread_mdelay(30000);

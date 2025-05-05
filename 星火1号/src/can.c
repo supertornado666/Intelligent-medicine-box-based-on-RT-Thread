@@ -15,6 +15,8 @@
 #include <stdbool.h>
 #include "commands_def.h"
 #include "uart2.h"
+#include "uart3.h"
+#include "mqtt.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -26,9 +28,11 @@ char command[9] = {0};
 char freq[4];
 static int num1, num2;
 static bool pill_out_flag = false;
+bool finger_flag = false;
 
 void check_out(char *command){
     if (strcmp(command, MEDICINE_OUT_END) == 0){
+        command[0] = '\0';
         pill_out_flag = false;
         return;
     }
@@ -48,6 +52,7 @@ void check_out(char *command){
     else if (strcmp(command, MEDICINE_OUT_5) == 0){
         del_medicine(5);
     }
+    command[0] = '\0';
 }
 
 /* 接收数据回调函数 */
@@ -88,29 +93,59 @@ static void can_rx_thread(void *parameter)
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
-        if (strcmp(command, MEDICINE_OUT_BEGIN) == 0){
-            pill_out_flag = true;
-            continue;
+        if (strcmp(command, IDENTITY_UNBIND) == 0){
+            if (Med_Zw101_DeleteFinger(1)){
+                rt_kprintf("success\n");
+                can_send(IDENTITY_SUCCESS, 1);
+                finger_flag = false;
+                identity_mqtt_change();
+            }
         }
-        else if (pill_out_flag){
-            check_out(command);
-            continue;
+        if (strcmp(command, IDENTITY_BIND) == 0){
+            while (rt_pin_read(FINGER_PIN) != PIN_HIGH){
+                //rt_kprintf("identity...\n");
+                rt_thread_mdelay(100);
+            }
+            if (zw101_add_fingerprint_auto(1) == 0){
+                //rt_kprintf("success\n");
+                can_send(IDENTITY_SUCCESS, 1);
+                finger_flag = true;
+                identity_mqtt_change();
+            }
         }
 
-        if (strcmp(command, MEDICINE_IN_BEGIN) == 0){
-            rt_device_write(u2_dev, 0, START_SCAN, 1);
+        if (finger_flag){
+            if (strcmp(command, MEDICINE_OUT_BEGIN) == 0){
+                pill_out_flag = true;
+                continue;
+            }
+            else if (pill_out_flag){
+                check_out(command);
+                continue;
+            }
+
+            if (strcmp(command, MEDICINE_IN_BEGIN) == 0){
+                rt_pin_write(SCAN_PIN, PIN_HIGH);
+                rt_thread_mdelay(100);
+                rt_device_write(u2_dev, 0, START_SCAN, 1);
+                rt_pin_write(SCAN_PIN, PIN_LOW);
+            }
+            else if (strcmp(command, MEDICINE_IN_END) == 0){
+                rt_pin_write(SCAN_PIN, PIN_HIGH);
+                rt_thread_mdelay(100);
+                rt_device_write(u2_dev, 0, FINISH_SCAN, 1);
+                rt_pin_write(SCAN_PIN, PIN_LOW);
+            }
+            else if (sscanf(command, "%d,%d", &num1, &num2) == 2){
+                strcpy(freq, command);
+                rt_sem_release(&pill_freq);
+            }
+            else if (strcmp(command, MEDICINE_GET_INFO) == 0){
+                get_medicine_info();
+                //spi1_write();
+            }
         }
-        else if (strcmp(command, MEDICINE_IN_END) == 0){
-            rt_device_write(u2_dev, 0, FINISH_SCAN, 1);
-        }
-        else if (sscanf(command, "%d,%d", &num1, &num2) == 2){
-            strcpy(freq, command);
-            rt_sem_release(&pill_freq);
-        }
-        else if (strcmp(command, MEDICINE_GET_INFO) == 0){
-            get_medicine_info();
-            //spi1_write();
-        }
+        command[0] = '\0';
 
         //rt_kprintf("buf:%s\n", command);
     }
@@ -166,7 +201,7 @@ int can_init(void){
     //res = rt_device_control(can_dev, RT_CAN_CMD_SET_BAUD, (void *)CAN100kBaud);
 
     /* 创建数据接收线程 */
-    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 1024, 9, 10);
+    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 5120, 9, 10);
     if (can_th != RT_NULL)
     {
         rt_thread_startup(can_th);

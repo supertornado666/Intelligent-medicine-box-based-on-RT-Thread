@@ -109,7 +109,7 @@ int uart4_init(void){
     rt_device_control(u4_dev, RT_DEVICE_CTRL_CONFIG, (void *)&u4_configs);
     rt_device_set_rx_indicate(u4_dev, rx_callback);
     rt_sem_init(&u4_sem, "rx_sem", 0, RT_IPC_FLAG_FIFO);
-    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1024, 22, 5);
+    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1536, 22, 5);
     rt_thread_startup(u4_th);
 
     return 0;

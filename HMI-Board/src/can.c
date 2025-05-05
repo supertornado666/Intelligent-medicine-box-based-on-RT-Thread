@@ -114,6 +114,11 @@ static void can_rx_thread(void *parameter)
             //rt_kprintf("buf:%s\n", command);
             backlight_on();
         }
+        else if (!strcmp(command, IDENTITY_SUCCESS)) {
+            rt_sem_release(&read_sem);
+            //rt_kprintf("buf:%s\n", command);
+            backlight_on();
+        }
     }
 }
 

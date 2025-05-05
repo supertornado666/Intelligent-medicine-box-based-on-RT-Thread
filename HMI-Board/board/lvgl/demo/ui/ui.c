@@ -5,6 +5,9 @@
 
 #include "ui.h"
 #include "ui_helpers.h"
+#include "syn8086.h"
+
+extern bool finger_flag;
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -116,7 +119,7 @@ void ui_event_diseasebutton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_CLICKED && finger_flag) {
         _ui_screen_change(&ui_emotion, LV_SCR_LOAD_ANIM_FADE_ON, 500, 100, &ui_emotion_screen_init);
         disease_anl(e);
     }
@@ -137,7 +140,7 @@ void ui_event_medicineinbutton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_CLICKED && finger_flag) {
         _ui_screen_change(&ui_medicineinpanel, LV_SCR_LOAD_ANIM_OVER_TOP, 500, 100, &ui_medicineinpanel_screen_init);
         read_bar(e);
     }
@@ -147,7 +150,7 @@ void ui_event_medicineoutbutton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_CLICKED && finger_flag) {
         _ui_screen_change(&ui_medicineoutpanel, LV_SCR_LOAD_ANIM_OVER_TOP, 500, 100, &ui_medicineoutpanel_screen_init);
         medicine_out(e);
     }

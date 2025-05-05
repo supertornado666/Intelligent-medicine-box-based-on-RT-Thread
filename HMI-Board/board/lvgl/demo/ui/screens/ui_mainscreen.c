@@ -17,7 +17,7 @@ void ui_mainscreen_screen_init(void)
     lv_obj_set_x(ui_diseasebutton, 180);
     lv_obj_set_y(ui_diseasebutton, 100);
     lv_obj_set_align(ui_diseasebutton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_diseasebutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_diseasebutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_grad_dir(ui_diseasebutton, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_diseasebutton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -83,7 +83,7 @@ void ui_mainscreen_screen_init(void)
     lv_obj_set_x(ui_medicineinbutton, -60);
     lv_obj_set_y(ui_medicineinbutton, 100);
     lv_obj_set_align(ui_medicineinbutton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_grad_dir(ui_medicineinbutton, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_medicineinbutton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -116,7 +116,7 @@ void ui_mainscreen_screen_init(void)
     lv_obj_set_x(ui_medicineoutbutton, 60);
     lv_obj_set_y(ui_medicineoutbutton, 100);
     lv_obj_set_align(ui_medicineoutbutton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_grad_dir(ui_medicineoutbutton, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_medicineoutbutton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);

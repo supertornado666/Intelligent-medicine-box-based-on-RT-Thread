@@ -7,9 +7,10 @@
  * Date           Author       Notes
  * 2025-05-05     廖钟涛       the first version
  */
-#ifndef SRC_WLAN_H_
-#define SRC_WLAN_H_
+#ifndef SRC_MQTT_H_
+#define SRC_MQTT_H_
 
-void wifi_connect(void);
+void identity_mqtt_change(void);
+void aht_mqtt_init(void);
 
-#endif /* SRC_WLAN_H_ */
+#endif /* SRC_MQTT_H_ */

@@ -16,13 +16,14 @@
 #include "standby_timer.h"
 #include "llm.h"
 #include "event.h"
+#include "syn8086.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
 struct rt_semaphore read_sem, show_sem;
 bool inback_flag = true;
-static bool finger_flag = true;
+bool finger_flag = false;
 static rt_thread_t read_th, del_th, tim_th = RT_NULL, show_th = RT_NULL;
 static lv_obj_t * kb;
 
@@ -133,10 +134,15 @@ void update_time(lv_event_t * e)
 void disease_anl(lv_event_t * e)
 {
     // Your code here
-    strcpy(msg, "根据用药分析我的病情：");
-    rt_event_send(speak_event, EVENT_GET_INFO);
-    //rt_sem_release(&call_deepseek_sem);
-    can_send(MEDICINE_GET_INFO, 1);
+    if (finger_flag){
+        strcpy(msg, "根据用药分析我的病情：");
+        rt_event_send(speak_event, EVENT_GET_INFO);
+        //rt_sem_release(&call_deepseek_sem);
+        can_send(MEDICINE_GET_INFO, 1);
+    }
+    else{
+        SYN_FrameInfo("请先进行身份绑定");
+    }
 }
 
 void del_thread_entry(rt_thread_t *parameter){
@@ -160,12 +166,19 @@ void read_thread_entry(rt_thread_t *parameter){
             lv_obj_add_flag(ui_fingertext, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_time, LV_OBJ_FLAG_HIDDEN);
 
-            if (finger_flag){
+            if (!finger_flag){
                 lv_label_set_text(ui_loginouttext, "解除绑定");
+                lv_obj_clear_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
                 finger_flag = !finger_flag;
             }
             else{
                 lv_label_set_text(ui_loginouttext, "身份绑定");
+                lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
                 finger_flag = !finger_flag;
             }
 
@@ -185,7 +198,8 @@ void read_thread_entry(rt_thread_t *parameter){
 void read_finger(lv_event_t * e)
 {
 	// Your code here
-    if (finger_flag){
+    if (!finger_flag){
+        lv_obj_add_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN);
         //rt_device_write(u4_dev, 0, IDENTITY_BIND, 1);
         can_send(IDENTITY_BIND, 1);
     }
@@ -208,12 +222,17 @@ void read_bar(lv_event_t * e)
 {
 	// Your code here
     //rt_device_write(u4_dev, 0, MEDICINE_IN_BEGIN, 1);
-    can_send(MEDICINE_IN_BEGIN, 1);
+    if (finger_flag){
+        can_send(MEDICINE_IN_BEGIN, 1);
 
-    inback_flag = false;
-    rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
-    read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 21, 5);
-    rt_thread_startup(read_th);
+        inback_flag = false;
+        rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
+        read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 21, 5);
+        rt_thread_startup(read_th);
+    }
+    else{
+        SYN_FrameInfo("请先进行身份绑定");
+    }
 }
 
 void m_inback(lv_event_t * e)
@@ -255,7 +274,12 @@ void medicine_out(lv_event_t * e)
 {
     // Your code here
     //rt_device_write(u4_dev, 0, MEDICINE_OUT_BEGIN, 1);
-    can_send(MEDICINE_OUT_BEGIN, 1);
+    if (finger_flag){
+        can_send(MEDICINE_OUT_BEGIN, 1);
+    }
+    else{
+        SYN_FrameInfo("请先进行身份绑定");
+    }
 }
 
 void del_medicine(lv_event_t * e)

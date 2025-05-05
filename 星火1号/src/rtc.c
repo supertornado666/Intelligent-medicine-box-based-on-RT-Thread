@@ -141,10 +141,10 @@ void set_screen_time(void){
     sprintf(t, "%ld", now);
     char str[8] = "times:";
     rt_memcpy(str + 6, t, 2);
-    rt_kprintf("%s", str);
+    //rt_kprintf("%s", str);
     can_send(str, 8);
     rt_memcpy(str, t + 2, 8);
-    rt_kprintf("%s", str);
+    //rt_kprintf("%s", str);
     rt_thread_mdelay(500);
     can_send(str, 8);
 }

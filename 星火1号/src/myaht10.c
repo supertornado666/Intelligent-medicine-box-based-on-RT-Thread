@@ -17,15 +17,19 @@
 static aht10_device_t aht_dev;
 static rt_thread_t aht_th;
 
+float humidity, temperature;
+rt_mq_t mq_hum = RT_NULL;
+rt_mq_t mq_tem = RT_NULL;
+
 static void aht10_thread_entry(void *parameter){
-    float humidity, temperature;
     char str[9];
     while (1){
         /* 读取湿度 */
         humidity = aht10_read_humidity(aht_dev);
         sprintf(str, "hum:%.1f", humidity);
         can_send(str, 8);
-        LOG_D("humidity   : %d.%d %%", (int)humidity, (int)(humidity * 10) % 10);
+        rt_mq_urgent(mq_hum, &humidity, sizeof(humidity));
+        //LOG_D("humidity   : %d.%d %%", (int)humidity, (int)(humidity * 10) % 10);
 
         rt_thread_mdelay(200);
 
@@ -33,7 +37,8 @@ static void aht10_thread_entry(void *parameter){
         temperature = aht10_read_temperature(aht_dev);
         sprintf(str, "tem:%.1f", temperature);
         can_send(str, 8);
-        LOG_D("temperature: %d.%d℃", (int)temperature, (int)(temperature * 10) % 10);
+        rt_mq_urgent(mq_tem, &temperature, sizeof(temperature));
+        //LOG_D("temperature: %d.%d℃", (int)temperature, (int)(temperature * 10) % 10);
 
         rt_thread_mdelay(10000);
     }
@@ -54,6 +59,10 @@ int myaht10_init(void){
         LOG_E(" The sensor initializes failure");
         return -1;
     }
+
+    // 初始化消息队列
+    mq_hum = rt_mq_create("mq_hum", 10, sizeof(humidity), RT_IPC_FLAG_FIFO);
+    mq_tem = rt_mq_create("mq_tem", 10, sizeof(temperature), RT_IPC_FLAG_FIFO);
 
     aht_th = rt_thread_create("aht_th", aht10_thread_entry, NULL, 1024, 10, 5);
     rt_thread_startup(aht_th);

@@ -20,6 +20,7 @@ static struct serial_configure u2_configs = RT_SERIAL_CONFIG_DEFAULT;
 static struct rt_semaphore u2_sem;
 struct rt_semaphore pill_freq;
 static rt_thread_t u2_th;
+
 static rt_size_t rx2_len = 0;
 
 extern char freq[4];
@@ -52,10 +53,11 @@ static void serial2_thread_entry(void *parameter){
         rt_sem_take(&u2_sem, RT_WAITING_FOREVER);
         len = rt_device_read(u2_dev, 0, buf, rx2_len);
         buf[len] = '\0';
+        rt_kprintf("buf:%s\n", buf);
+        rt_thread_mdelay(300);
 
         rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
         add_medicine(buf, atoi(&freq[0]), atoi(&freq[2]));
-        rt_kprintf("buf:%s\n", buf);
     }
 }
 

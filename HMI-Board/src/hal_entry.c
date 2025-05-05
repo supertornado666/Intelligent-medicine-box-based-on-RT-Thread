@@ -36,7 +36,7 @@ void hal_entry(void)
     can_init();
     spi1_init();
     speak_event_init();
-    SYN_FrameInfo("[v1]");
+    SYN_FrameInfo("[v1]语音模块初始化成功");
 
     rt_wlan_connect("Redmi K60 Pro", "jh15988597685");
 

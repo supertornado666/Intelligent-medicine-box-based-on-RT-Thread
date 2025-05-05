@@ -12,6 +12,9 @@
 
 #include "aht10.h"
 
+extern rt_mq_t mq_hum;
+extern rt_mq_t mq_tem;
+
 int myaht10_init(void);
 
 #endif /* SRC_MYAHT10_H_ */
