@@ -7,12 +7,12 @@
  * Date           Author       Notes
  * 2025-04-24     huge       the first version
  */
-#ifndef SRC_UART2_H_
-#define SRC_UART2_H_
+#ifndef SRC_OPENMV_H_
+#define SRC_OPENMV_H_
 
 rt_device_t u2_dev;
 extern struct rt_semaphore pill_freq;
 
 int uart2_init(void);
 
-#endif /* SRC_UART2_H_ */
+#endif /* SRC_OPENMV_H_ */

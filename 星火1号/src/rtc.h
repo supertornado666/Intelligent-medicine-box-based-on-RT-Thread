@@ -13,7 +13,9 @@
 #define RTC_NAME       "rtc"
 
 int rtc_init();
-void alarm_set(char *tim);
+int alarm_add(char *tim);
+void alarm_delete(char *tim);
+void alarm_clear_all(void);
 void set_screen_time(void);
 
 #endif /* SRC_RTC_H_ */

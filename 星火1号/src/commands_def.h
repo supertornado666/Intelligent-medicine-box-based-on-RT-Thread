@@ -33,6 +33,8 @@
 #define SHOW_QUESTION			"H"//显示疑问
 #define SHOW_EMO_END			"I"//显示结束
 
+#define MEDICINE_IN_SUCCESS     "U"//添加药物成功
+#define MEDICINE_IN_ERROR       "V"//添加药物失败
 #define MEDICINE_OUT_SUCCESS	"M"//移除药物成功
 #define MEDICINE_OUT_ERROR		"N"//药物格无药物或其他错误
 

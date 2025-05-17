@@ -1,4 +1,5 @@
 /*
+#include <openmv.h>
  * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -9,8 +10,10 @@
  */
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "uart2.h"
 #include "medication_management.h"
+#include "can.h"
+#include "commands_def.h"
+#include "openmv.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
@@ -19,7 +22,7 @@
 static struct serial_configure u2_configs = RT_SERIAL_CONFIG_DEFAULT;
 static struct rt_semaphore u2_sem;
 struct rt_semaphore pill_freq;
-static rt_thread_t u2_th;
+static rt_thread_t openmv_th;
 
 static rt_size_t rx2_len = 0;
 
@@ -36,7 +39,7 @@ static rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
     return RT_EOK;
 }
 
-static void serial2_thread_entry(void *parameter){
+static void openmv_thread_entry(void *parameter){
     //中断接收
 //    char buf;
 //    while (1){
@@ -56,12 +59,19 @@ static void serial2_thread_entry(void *parameter){
         rt_kprintf("buf:%s\n", buf);
         rt_thread_mdelay(300);
 
+        can_send(MEDICINE_INFOIN_SUCCESS, 1);
         rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
-        add_medicine(buf, atoi(&freq[0]), atoi(&freq[2]));
+
+        if (add_medicine(buf, atoi(&freq[0]), atoi(&freq[2]), find_blank()) == 0){
+            can_send(MEDICINE_IN_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_IN_ERROR, 1);
+        }
     }
 }
 
-int uart2_init(void)
+int openmv_init(void)
 {
     rt_err_t ret = 0;
 
@@ -90,8 +100,8 @@ int uart2_init(void)
     rt_sem_init(&u2_sem, "rx2_sem", 0, RT_IPC_FLAG_FIFO);
     rt_sem_init(&pill_freq, "pill_freq", 0, RT_IPC_FLAG_FIFO);
 
-    u2_th = rt_thread_create("u2_recv", serial2_thread_entry, NULL, 1024, 10, 5);
-    rt_thread_startup(u2_th);
+    openmv_th = rt_thread_create("opmv_recv", openmv_thread_entry, NULL, 1024, 10, 5);
+    rt_thread_startup(openmv_th);
 
     return 0;
 }

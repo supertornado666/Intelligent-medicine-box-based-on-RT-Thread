@@ -7,8 +7,8 @@
  * Date           Author       Notes
  * 2025-04-24     huge       the first version
  */
-#ifndef SRC_UART3_H_
-#define SRC_UART3_H_
+#ifndef SRC_ZW101_H_
+#define SRC_ZW101_H_
 
 #include <board.h>
 
@@ -16,9 +16,9 @@
 
 rt_device_t u3_dev;
 
-int uart3_init(void);
+int zw101_init(void);
 uint8_t Med_Zw101_IdentifyFinger (void);
 //uint8_t Med_Zw101_AddFinger_Full(uint8_t id);
 uint8_t Med_Zw101_DeleteFinger (uint8_t id);
 int zw101_add_fingerprint_auto(rt_uint16_t id);
-#endif /* SRC_UART2_H_ */
+#endif /* SRC_ZW101_H_ */

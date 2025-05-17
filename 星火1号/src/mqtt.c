@@ -16,6 +16,7 @@
 #include "cJSON.h"
 
 #include "myaht10.h"
+#include "medication_management.h"
 
 char DEMO_PRODUCT_KEY[IOTX_PRODUCT_KEY_LEN + 1];
 char DEMO_DEVICE_NAME[IOTX_DEVICE_NAME_LEN + 1];
@@ -43,6 +44,7 @@ void example_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
 //使用CJSON库解析JSON字符串，并根据cmd字段的内容执行相应的操作。
 static void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
+    //rt_kprintf("something arrived\n");
     iotx_mqtt_topic_info_t     *topic_info = (iotx_mqtt_topic_info_pt) msg->msg;
 
     switch (msg->event_type) {
@@ -58,17 +60,24 @@ static void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_even
                 EXAMPLE_TRACE("json parse error");
                 return;
             }
-            cJSON *cmd = cJSON_GetObjectItem(root, "cmd");
+            cJSON *cmd = cJSON_GetObjectItem(root, "AlarmSwitch");
             if (cmd == NULL) {
                 EXAMPLE_TRACE("json parse error");
                 cJSON_Delete(root);
                 return;
             }
             // 打印解析后的数据
-            EXAMPLE_TRACE("cmd: %s",cmd->valuestring);
-            // 控制红色led
-//            if (strcmp(cmd->valuestring, "redledon") == 0) {
-//                rt_pin_write(GPIO_LED_R, PIN_LOW);
+            //EXAMPLE_TRACE("cmd: %s",cmd->valuestring);
+
+            if (cmd->valueint == 1) rt_kprintf("AlarmOn\n");
+            else if (cmd->valueint == 0) rt_kprintf("AlarmOff\n");
+//            if (strcmp(cmd->valuestring, "1") == 0) {
+//                rt_kprintf("AlarmOn\n");
+//            }
+//            else if (strcmp(cmd->valuestring, "0") == 0) {
+//                rt_kprintf("AlarmOff\n");
+//            }
+
 
             break;
         default:
@@ -208,6 +217,44 @@ static void mqtt_aht_main(void *parameter)
     return;
 }
 
+void alarm_on(void){
+    char *payload = NULL;
+    int payload_len = 0,res = 0;
+
+    const char     *fmt = "/sys/%s/%s/thing/event/property/post";
+    char           *topic = NULL;
+    int topic_len = 0;
+
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
+    topic = HAL_Malloc(topic_len);
+    if (topic == NULL) {
+        EXAMPLE_TRACE("memory not enough");
+        return;
+    }
+    memset(topic, 0, topic_len);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
+
+    //计算payload所需长度，温度湿度数据保留一位小数上传，"params":{"CurrentTemperature":16.5,"CurrentHumidity":56.3,"LightValue":1000.0,"DetectDistance":1000.0}
+    payload_len = strlen("{\"params\":{\"AlarmSwitch\":1}}") + 5;
+    payload = HAL_Malloc(payload_len);
+    if (payload == NULL) {
+        EXAMPLE_TRACE("memory not enough");
+        return;
+    }
+    memset(payload, 0, payload_len);
+    HAL_Snprintf(payload, payload_len, "{\"params\":{\"AlarmSwitch\":%d}}", 1);
+
+    res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
+    if (res < 0) {
+        EXAMPLE_TRACE("publish failed, res = %d", res);
+        HAL_Free(topic);
+        HAL_Free(payload);
+        return;
+    }
+    HAL_Free(topic);
+    HAL_Free(payload);
+}
+
 void identity_mqtt_change(void){
     char *payload = NULL;
     int payload_len = 0,res = 0;
@@ -234,6 +281,62 @@ void identity_mqtt_change(void){
     }
     memset(payload, 0, payload_len);
     HAL_Snprintf(payload, payload_len, "{\"params\":{\"fingerPrintValue\":%d}}", finger_flag);
+
+    res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
+    if (res < 0) {
+        EXAMPLE_TRACE("publish failed, res = %d", res);
+        HAL_Free(topic);
+        HAL_Free(payload);
+        return;
+    }
+    HAL_Free(topic);
+    HAL_Free(payload);
+}
+
+void medicine_mqtt_add(Medicine med){
+    char *payload = NULL;
+    int payload_len = 0,res = 0;
+
+    const char     *fmt = "/sys/%s/%s/thing/event/property/post";
+    char           *topic = NULL;
+    int topic_len = 0;
+
+    topic_len = strlen(fmt) + strlen(DEMO_PRODUCT_KEY) + strlen(DEMO_DEVICE_NAME) + 1;
+    topic = HAL_Malloc(topic_len);
+    if (topic == NULL) {
+        EXAMPLE_TRACE("memory not enough");
+        return;
+    }
+    memset(topic, 0, topic_len);
+    HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
+
+    //计算payload所需长度，温度湿度数据保留一位小数上传，"params":{"CurrentTemperature":16.5,"CurrentHumidity":56.3,"LightValue":1000.0,"DetectDistance":1000.0}
+    payload_len = strlen("{\"params\":{\"medicineInfo\":{"
+            "\"drugName\":\"啊啊啊啊啊啊啊啊啊啊啊啊\","
+            "\"drugTaketime\":\"00:00\"\"00:00\"\"00:00\"\"00:00\"\"00:00\","
+            "\"singleAmount\":5,"
+            "\"takenTime\":5,"
+            "\"Location\":1"
+            "}}}") + 5;
+    payload = HAL_Malloc(payload_len);
+    if (payload == NULL) {
+        EXAMPLE_TRACE("memory not enough");
+        return;
+    }
+    memset(payload, 0, payload_len);
+    HAL_Snprintf(payload, payload_len,
+        "{\"params\":{\"medicineInfo\":{"
+        "\"drugName\":\"%s\","
+        "\"drugTaketime\":\"%s\"\"%s\"\"%s\"\"%s\"\"%s\","
+        "\"singleAmount\":%d,"
+        "\"takenTime\":%d,"
+        "\"Location\":%d"
+        "}}}",
+        med.name,
+        med.take_time[0], med.take_time[1], med.take_time[2], med.take_time[3], med.take_time[4],
+        med.amount,
+        med.number,
+        med.number);
 
     res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
     if (res < 0) {

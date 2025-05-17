@@ -1,4 +1,5 @@
 /*
+#include <zw101.h>
  * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -9,13 +10,15 @@
  */
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "uart3.h"
 #include "string.h"
+#include "zw101.h"
+
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
+
 static struct rt_semaphore u3_sem;
-static rt_thread_t u3_th;
+static rt_thread_t zw101_th;
 static rt_size_t rx3_len = 0;
 uint8_t buf[256] = {0};
 rt_size_t len = 0;
@@ -30,7 +33,7 @@ static rt_err_t rx3_callback(rt_device_t dev, rt_size_t size){
     return RT_EOK;
 }
 
-static void serial3_thread_entry(void *parameter){
+static void zw101_thread_entry(void *parameter){
     //中断接收
 //    char buf;
 //    while (1){
@@ -55,7 +58,7 @@ static void serial3_thread_entry(void *parameter){
     }
 }
 
-int uart3_init(void)
+int zw101_init(void)
 {
     rt_err_t ret = 0;
 
@@ -87,8 +90,8 @@ int uart3_init(void)
 
     rt_sem_init(&u3_sem, "rx3_sem", 0, RT_IPC_FLAG_FIFO);
 
-    u3_th = rt_thread_create("u3_recv", serial3_thread_entry, NULL, 1024, 10, 5);
-    rt_thread_startup(u3_th);
+    zw101_th = rt_thread_create("zw101_recv", zw101_thread_entry, NULL, 1024, 10, 5);
+    rt_thread_startup(zw101_th);
 
     return 0;
 }
@@ -113,7 +116,11 @@ uint8_t Med_Zw101_IdentifyFinger (void)
         }
         rt_thread_mdelay(1);
     }*/
-
+    int wait_count = 0;
+           while (rx3_len < 12 && wait_count++ < 100)
+           {
+               rt_thread_mdelay(10);  // 等待数据接收
+           }
     if (rx3_len==len)
     {
         if (rx3_len >= 11 &&buf[9] ==00)
@@ -160,6 +167,11 @@ uint8_t Med_Zw101_AddFinger (uint8_t id,uint8_t cunt)
     build_auto_enroll_packet(id, data);
     // 发送指令
     rt_device_write(u3_dev, 0, data,17);
+    int wait_count = 0;
+           while (rx3_len < 12 && wait_count++ < 100)
+           {
+               rt_thread_mdelay(10);  // 等待数据接收
+           }
     if (rx3_len>11)
     {
         if (buf[6] == 0x07&&buf[9] == 0x00)
@@ -170,8 +182,6 @@ uint8_t Med_Zw101_AddFinger (uint8_t id,uint8_t cunt)
         else
         {
             rt_kprintf("buffer %d fail\n",cunt);
-            rt_kprintf("buffer %d\n",buf[6]);
-            rt_kprintf("buffer %d\n",buf[9]);
         }
     }
     else rt_kprintf("rv_nothing\n");
@@ -220,7 +230,11 @@ uint8_t Med_Zw101_DeleteFinger (uint8_t id)
 
     // 发送指令
     rt_device_write(u3_dev, 0, data,16);
-
+    int wait_count = 0;
+           while (rx3_len < 12 && wait_count++ < 100)
+           {
+               rt_thread_mdelay(10);  // 等待数据接收
+           }
     // 等待接收完应答数据
     if (rx3_len>11)
     {

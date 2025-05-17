@@ -1,4 +1,6 @@
 /*
+#include <fingerprint_reader.h>
+#include <openmv.h>
  * Copyright (c) 2006-2021, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -14,8 +16,8 @@
 #include <rtdevice.h>
 #include <stdbool.h>
 #include "commands_def.h"
-#include "uart2.h"
-#include "uart3.h"
+#include "openmv.h"
+#include "zw101.h"
 #include "mqtt.h"
 
 #define DBG_TAG "main"
