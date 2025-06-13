@@ -384,6 +384,10 @@
 /* HC32 DDL Drivers */
 
 /* end of HC32 DDL Drivers */
+
+/* NXP HAL & SDK Drivers */
+
+/* end of NXP HAL & SDK Drivers */
 /* end of HAL & SDK Drivers */
 
 /* sensors drivers */
@@ -496,8 +500,8 @@
 #define BSP_USING_ONCHIP_RTC
 #define BSP_RTC_USING_LSE
 #define BSP_USING_PWM
-#define BSP_USING_PWM3
-#define BSP_USING_PWM3_CH2
+#define BSP_USING_PWM1
+#define BSP_USING_PWM1_CH4
 #define BSP_USING_ON_CHIP_FLASH
 #define BSP_USING_SPI
 #define BSP_USING_SPI1

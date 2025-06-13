@@ -13,6 +13,7 @@
 #include "medication_process.h"
 #include "can.h"
 #include "commands_def.h"
+#include "zw101.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
@@ -22,15 +23,20 @@ rt_thread_t after_th;
 
 static void after_process_thread(void *parameter){
     while (1){
-        //等待用药结束
-        rt_event_recv(medication_event, EVENT_TAKE_MEDICINE_END, RT_EVENT_FLAG_AND, RT_WAITING_FOREVER, NULL);
 
-        /*检查盖上*/
+      rt_event_recv(medication_event,
+              EVENT_TAKE_MEDICINE_END,
+              RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
+              RT_WAITING_FOREVER,
+              NULL);
 
-
+       if(rt_pin_read(FINGER_PIN) == PIN_HIGH)
+       {
         rt_event_send(medication_event, EVENT_BOX_CLOSED);
         after_th = RT_NULL;
-        rt_thread_delete(rt_thread_self());
+        return;
+       }
+       rt_thread_mdelay(100);
     }
 }
 

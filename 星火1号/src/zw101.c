@@ -12,7 +12,7 @@
 #include <rtdevice.h>
 #include "string.h"
 #include "zw101.h"
-
+#include "pwm.h"
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
@@ -22,6 +22,7 @@ static rt_thread_t zw101_th;
 static rt_size_t rx3_len = 0;
 uint8_t buf[256] = {0};
 rt_size_t len = 0;
+int wait=0;
 static rt_err_t rx3_callback(rt_device_t dev, rt_size_t size){
     //中断接收
    // rt_sem_release(&u3_sem);
@@ -125,6 +126,7 @@ uint8_t Med_Zw101_IdentifyFinger (void)
     {
         if (rx3_len >= 11 &&buf[9] ==00)
             flag = 1;
+
     }
     return flag;
 }

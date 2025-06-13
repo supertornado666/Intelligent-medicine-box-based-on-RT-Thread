@@ -50,7 +50,7 @@ void ui_mainscreen_screen_init(void)
     lv_obj_set_x(ui_loginoutbutton, -180);
     lv_obj_set_y(ui_loginoutbutton, 100);
     lv_obj_set_align(ui_loginoutbutton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_loginoutbutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_loginoutbutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_grad_dir(ui_loginoutbutton, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_loginoutbutton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);

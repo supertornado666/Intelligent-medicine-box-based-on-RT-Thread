@@ -9,7 +9,7 @@
  * Date           Author       Notes
  * 2025-03-21     廖钟涛       the first version
  */
-
+#include "medication_process.h"
 #include "can.h"
 #include <rtthread.h>
 #include <rtdbg.h>
@@ -19,6 +19,8 @@
 #include "openmv.h"
 #include "zw101.h"
 #include "mqtt.h"
+#include "medication_management.h"
+#include "check_take_medicine.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -31,6 +33,8 @@ char freq[4];
 static int num1, num2;
 static bool pill_out_flag = false;
 bool finger_flag = false;
+
+char result[400] = ""; // 初始化空字符串
 
 void check_out(char *command){
     if (strcmp(command, MEDICINE_OUT_END) == 0){
@@ -68,7 +72,7 @@ static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
 
 static void can_rx_thread(void *parameter)
 {
-    struct rt_can_msg rxmsg = {0};
+ struct rt_can_msg rxmsg = {0};
 
 #ifdef RT_CAN_USING_HDR
     struct rt_can_filter_item items[5] =
@@ -141,10 +145,25 @@ static void can_rx_thread(void *parameter)
             else if (sscanf(command, "%d,%d", &num1, &num2) == 2){
                 strcpy(freq, command);
                 rt_sem_release(&pill_freq);
+
+                rt_pin_write(SCAN_PIN, PIN_HIGH);
+                rt_thread_mdelay(100);
+                rt_device_write(u2_dev, 0, START_SCAN, 1);
+                rt_pin_write(SCAN_PIN, PIN_LOW);
             }
             else if (strcmp(command, MEDICINE_GET_INFO) == 0){
-                get_medicine_info();
-                //spi1_write();
+                rt_kprintf("get info\n");
+                int count=0;
+                MedicineDisplayInfo *info = get_medicine_info(&count);
+
+                for (int i = 0; i < count; i++) {
+                    char temp[100]; // 临时存储单条记录
+                    snprintf(temp, sizeof(temp), "药物名字:%s，一天%d次，一次%d颗，已服用%d次\n",
+                             info[i].name, info[i].times_per_day, info[i].amount, have_take[info[i].number]);
+                    strcat(result, temp); // 追加到 result
+                }
+                rt_thread_mdelay(2000);
+                spi1_write(result,400);
             }
         }
         command[0] = '\0';

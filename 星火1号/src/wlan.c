@@ -12,8 +12,8 @@
 #include <rtdevice.h>
 #include <board.h>
 
-#define WIFI_SSID "Redmi K60 Pro"   //wiif名字，需要根据实际情况修改（2.4G）
-#define WIFI_PASSWORD "jh15988597685"   //wifi密码，需要根据实际情况修改
+#define WIFI_SSID "spark"   //wiif名字，需要根据实际情况修改（2.4G）
+#define WIFI_PASSWORD "12345678"   //wifi密码，需要根据实际情况修改
 
 #define THREAD_PRIORITY         16
 #define THREAD_STACK_SIZE       1024

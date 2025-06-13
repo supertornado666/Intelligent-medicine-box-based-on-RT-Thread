@@ -10,6 +10,9 @@
 #ifndef SRC_CHECK_TAKE_MEDICINE_H_
 #define SRC_CHECK_TAKE_MEDICINE_H_
 
+extern rt_thread_t m_take_th;
 
+extern have_take[5];
+int take_medicine_start(char *str);
 
 #endif /* SRC_CHECK_TAKE_MEDICINE_H_ */

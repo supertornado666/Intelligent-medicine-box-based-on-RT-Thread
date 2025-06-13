@@ -62,7 +62,7 @@ uint8_t spi1_init(void) {
  */
 uint8_t spi1_write(uint8_t *buf, uint16_t len) {
     int s_len = strlen(buf);  // 实际内容长度
-    memset(buf + s_len, ' ', sizeof(buf) - s_len - 1);
+    memset(buf + s_len, '\0', len - s_len - 1);
     buf[399] = '\0';
 
     uint8_t send_buf[len];
@@ -71,6 +71,7 @@ uint8_t spi1_write(uint8_t *buf, uint16_t len) {
     for (uint16_t i = 0; i < len; i++) {
         send_buf[i] = buf[i];
     }
+
     rt_spi_send(spi1_dev, send_buf, len);
 
     return 0;

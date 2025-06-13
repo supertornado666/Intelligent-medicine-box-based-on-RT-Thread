@@ -14,25 +14,33 @@
 #include "medication_process.h"
 #include "can.h"
 #include "commands_def.h"
-
+#include "zw101.h"
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
 
 rt_thread_t id_th;
 
+int num;
 static void check_identity_thread(void *parameter){
     while (1){
         if (Med_Zw101_IdentifyFinger()){
-            rt_event_send(medication_event, EVENT_CHECK_IDENTITY);
+
+        rt_event_send(medication_event, EVENT_CHECK_IDENTITY);
+        break;
         }
         else{
-            can_send(IDENTITY_WRONG, 1);
+            num++;
+            if (num == 20) {
+                can_send(MEDICINE_TIME_ON, 1);
+                num = 0;
+            }
+            //can_send(IDENTITY_WRONG, 1);
+            rt_thread_mdelay(500);
             continue;
         }
-        id_th = RT_NULL;
-        rt_thread_delete(rt_thread_self());
     }
+    id_th = RT_NULL;
 }
 
 int check_identity_start(void){

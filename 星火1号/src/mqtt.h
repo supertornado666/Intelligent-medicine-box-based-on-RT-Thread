@@ -9,10 +9,10 @@
  */
 #ifndef SRC_MQTT_H_
 #define SRC_MQTT_H_
-
+#include "medication_management.h"
 void alarm_on(void);
 void identity_mqtt_change(void);
-void medicine_mqtt_add(void);
+void medicine_mqtt_add(Medicine med);
 void aht_mqtt_init(void);
 
 #endif /* SRC_MQTT_H_ */

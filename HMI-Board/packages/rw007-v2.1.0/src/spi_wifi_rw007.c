@@ -410,7 +410,7 @@ static int wifi_data_transfer(struct rw007_spi *dev, uint16_t seq, uint8_t *rx_b
                         SLAVE_INT_TIMEOUT,
                         RT_NULL) != RT_EOK)
     {
-        LOG_E("The wifi slave response timed out\r");
+        //LOG_E("The wifi slave response timed out\r");
     }
 
     /* Stage 2: Receive response from rw007 */
@@ -487,7 +487,7 @@ static int wifi_data_transfer(struct rw007_spi *dev, uint16_t seq, uint8_t *rx_b
                         SLAVE_INT_TIMEOUT,
                         RT_NULL) != RT_EOK)
     {
-        LOG_E("The wifi slave data response timed out\r");
+        //LOG_E("The wifi slave data response timed out\r");
     }
 
     /* The slave has data */

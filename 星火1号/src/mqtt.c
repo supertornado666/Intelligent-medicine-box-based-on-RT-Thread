@@ -313,7 +313,7 @@ void medicine_mqtt_add(Medicine med){
     //计算payload所需长度，温度湿度数据保留一位小数上传，"params":{"CurrentTemperature":16.5,"CurrentHumidity":56.3,"LightValue":1000.0,"DetectDistance":1000.0}
     payload_len = strlen("{\"params\":{\"medicineInfo\":{"
             "\"drugName\":\"啊啊啊啊啊啊啊啊啊啊啊啊\","
-            "\"drugTaketime\":\"00:00\"\"00:00\"\"00:00\"\"00:00\"\"00:00\","
+            "\"drugTaketime\":\"\\\"00:00\\\"\\\"00:00\\\"\\\"00:00\\\"\\\"00:00\\\"\\\"00:00\\\"\","
             "\"singleAmount\":5,"
             "\"takenTime\":5,"
             "\"Location\":1"
@@ -324,10 +324,11 @@ void medicine_mqtt_add(Medicine med){
         return;
     }
     memset(payload, 0, payload_len);
+
     HAL_Snprintf(payload, payload_len,
         "{\"params\":{\"medicineInfo\":{"
         "\"drugName\":\"%s\","
-        "\"drugTaketime\":\"%s\"\"%s\"\"%s\"\"%s\"\"%s\","
+        "\"drugTaketime\":\"\\\"%s\\\"\\\"%s\\\"\\\"%s\\\"\\\"%s\\\"\\\"%s\\\"\","
         "\"singleAmount\":%d,"
         "\"takenTime\":%d,"
         "\"Location\":%d"
@@ -336,7 +337,8 @@ void medicine_mqtt_add(Medicine med){
         med.take_time[0], med.take_time[1], med.take_time[2], med.take_time[3], med.take_time[4],
         med.amount,
         med.number,
-        med.number);
+        med.number
+    );
 
     res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
     if (res < 0) {

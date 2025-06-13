@@ -172,14 +172,14 @@ void read_thread_entry(rt_thread_t *parameter){
                 lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
-                finger_flag = !finger_flag;
+                finger_flag = true;
             }
             else{
                 lv_label_set_text(ui_loginouttext, "身份绑定");
                 lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
-                finger_flag = !finger_flag;
+                finger_flag = false;
             }
 
             inback_flag = true;

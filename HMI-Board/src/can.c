@@ -16,6 +16,9 @@
 #include "standby_timer.h"
 #include "commands_def.h"
 #include "demo/ui/ui.h"
+#include "syn8086.h"
+#include "event.h"
+#include "spi1.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -25,10 +28,29 @@ static rt_device_t can_dev;            /* CAN 设备句柄 */
 
 char command[9] = {0};
 extern struct rt_semaphore read_sem, show_sem;
-extern bool inback_flag;
+//extern bool inback_flag;
 static char timset[11];
 static char ahtset[35] = "温度:00.0℃    湿度:00.0%";
 static bool time_flag = false;
+
+static rt_thread_t voice_th;
+char voice_list[5][2];
+int count, voice_num= 0;
+char voice[] = "请服用x号药x颗";
+static void voice_thread_entry(void *parameter){
+
+    while (1){
+        for (int i = 0; i < count; i++){
+            voice[9] = voice_list[i][0];
+            voice[16] = voice_list[i][1];
+            SYN_FrameInfo(voice);
+
+            rt_thread_mdelay(3000);
+        }
+
+        rt_thread_mdelay(10000);
+    }
+}
 
 static void check_time(char *command){
     if (strncmp(command, "times:", 6) == 0)  // 前 6 个字符等于 "times:"
@@ -39,7 +61,7 @@ static void check_time(char *command){
     else if (time_flag){
         rt_memcpy(timset + 2, command, 8);
         timset[10] = '\0';
-        rt_kprintf("%s\n", timset);
+        //rt_kprintf("%s\n", timset);
         time_t timestamp;
         timestamp = strtol(timset, NULL, 10);
         set_timestamp(timestamp);
@@ -50,14 +72,33 @@ static void check_time(char *command){
 }
 
 static void check_aht(char *command){
-    if (strncmp(command, "hum:", 4) == 0)  // 前 6 个字符等于 "times:"
+    if (strncmp(command, "hum:", 4) == 0)  // 前4个字符等于 "hum:"
     {
         rt_memcpy(&ahtset[25], command + 4, 4);
     }
     else if (strncmp(command, "tem:", 4) == 0){
         rt_memcpy(&ahtset[7], command + 4, 4);
-        rt_kprintf("%s\n", ahtset);
+        //rt_kprintf("%s\n", ahtset);
         lv_label_set_text(ui_aht, ahtset);
+    }
+
+    return;
+}
+
+static void check_med(char *command){
+    if (strncmp(command, "mot", 3) == 0){
+        if (command[3] == 'e'){
+            voice_th = rt_thread_create("voice", voice_thread_entry, RT_NULL, 2048, 22, 5);
+            rt_thread_startup(voice_th);
+
+            voice_num = 0;
+        }
+        else{
+            count = command[3] - '0';
+            voice_list[voice_num][0] = command[5];
+            voice_list[voice_num][1] = command[7];
+            voice_num++;
+        }
     }
 
     return;
@@ -69,9 +110,9 @@ static rt_err_t can_rx_callback(rt_device_t dev, rt_size_t size)
     /* CAN 接收到数据后产生中断，调用此回调函数，然后发送接收信号量 */
     rt_sem_release(&can_rx_sem);
 
-    if (!inback_flag) {
-        rt_sem_release(&read_sem);
-    }
+//    if (!inback_flag) {
+//        rt_sem_release(&read_sem);
+//    }
 
     return RT_EOK;
 }
@@ -108,17 +149,51 @@ static void can_rx_thread(void *parameter)
 
         check_time(command);
         check_aht(command);
+        check_med(command);
         //rt_kprintf("buf:%s\n", command);
         if (strcmp(command, SHOW_SMILE) >= 0 && strcmp(command, SHOW_EMO_END) <= 0) {
             rt_sem_release(&show_sem);
             //rt_kprintf("buf:%s\n", command);
-            backlight_on();
         }
-        else if (!strcmp(command, IDENTITY_SUCCESS)) {
+        else if (!strcmp(command, IDENTITY_SUCCESS) || !strcmp(command, MEDICINE_INFOIN_SUCCESS)) {
+            SYN_FrameInfo("sound902");
             rt_sem_release(&read_sem);
             //rt_kprintf("buf:%s\n", command);
-            backlight_on();
         }
+        else if (!strcmp(command, MEDICINE_IN_SUCCESS)) {
+            SYN_FrameInfo("药物录入成功");
+        }
+        else if (!strcmp(command, MEDICINE_IN_ERROR)) {
+            SYN_FrameInfo("药物录入失败");
+        }
+        else if (!strcmp(command, MEDICINE_OUT_SUCCESS)) {
+            SYN_FrameInfo("药物移除成功");
+        }
+        else if (!strcmp(command, MEDICINE_OUT_ERROR)) {
+            SYN_FrameInfo("药物移除失败");
+        }
+        else if (!strcmp(command, MEDICINE_TIME_ON)) {
+            SYN_FrameInfo("sound123,用药时间到，请先验证身份");
+        }
+        else if (!strcmp(command, IDENTITY_WRONG)) {
+            SYN_FrameInfo("身份验证失败");
+        }
+        else if (!strcmp(command, MEDICINE_TAKE_WRONG)) {
+            SYN_FrameInfo("现在无需服用此药，请放回");
+        }
+        else if (!strcmp(command, NOT_LOCKED)) {
+            SYN_FrameInfo("药箱未合上，请盖下盖子");
+        }
+        else if (!strcmp(command, MEDICINE_TIME_TIMEOUT)) {
+            SYN_FrameInfo("sound313,用药超时");
+            rt_thread_delete(voice_th);
+            voice_th = RT_NULL;
+        }
+        else if (!strcmp(command, MEDICINE_TAKE_END)) {
+            rt_thread_delete(voice_th);
+            voice_th = RT_NULL;
+        }
+        backlight_on();
     }
 }
 
@@ -172,7 +247,7 @@ int can_init(void){
     //res = rt_device_control(can_dev, RT_CAN_CMD_SET_BAUD, (void *)CAN100kBaud);
 
     /* 创建数据接收线程 */
-    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 768, 21, 5);
+    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 3072, 21, 5);
     if (can_th != RT_NULL)
     {
         rt_thread_startup(can_th);

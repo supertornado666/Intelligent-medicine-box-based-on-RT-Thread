@@ -12,9 +12,10 @@
 #include <rtdevice.h>
 #include "medication_management.h"
 #include "can.h"
+#include "pwm.h"
 #include "commands_def.h"
 #include "openmv.h"
-
+#include "medication_management.h"
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
@@ -27,7 +28,7 @@ static rt_thread_t openmv_th;
 static rt_size_t rx2_len = 0;
 
 extern char freq[4];
-
+int ret=0;
 static rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
     //中断接收
     //rt_sem_release(&u2_sem);
@@ -40,34 +41,37 @@ static rt_err_t rx2_callback(rt_device_t dev, rt_size_t size){
 }
 
 static void openmv_thread_entry(void *parameter){
-    //中断接收
-//    char buf;
-//    while (1){
-//        while(rt_device_read(u2_dev, 0, &buf, 1) != 1){
-//            rt_sem_take(&u2_sem, RT_WAITING_FOREVER);
-//        }
-//        rt_kprintf("%c", buf);
-//    }
 
     //DMA接收
     rt_size_t len = 0;
     char buf[512] = {0};
     while (1){
         rt_sem_take(&u2_sem, RT_WAITING_FOREVER);
+        while(len==0)
+        {
         len = rt_device_read(u2_dev, 0, buf, rx2_len);
+        }
         buf[len] = '\0';
         rt_kprintf("buf:%s\n", buf);
         rt_thread_mdelay(300);
 
         can_send(MEDICINE_INFOIN_SUCCESS, 1);
         rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
+        rt_kprintf("freq:%s",freq);
+        int ret=0;
+        ret = add_medicine(buf, freq[0] - '0', freq[2] - '0');
 
-        if (add_medicine(buf, atoi(&freq[0]), atoi(&freq[2]), find_blank()) == 0){
+        if (ret == 0) {
+            rt_thread_mdelay(3);
+
             can_send(MEDICINE_IN_SUCCESS, 1);
         }
-        else{
+        else {
+            rt_kprintf("add  fail\n");
+            rt_thread_mdelay(3);
             can_send(MEDICINE_IN_ERROR, 1);
         }
+
     }
 }
 
@@ -100,7 +104,7 @@ int openmv_init(void)
     rt_sem_init(&u2_sem, "rx2_sem", 0, RT_IPC_FLAG_FIFO);
     rt_sem_init(&pill_freq, "pill_freq", 0, RT_IPC_FLAG_FIFO);
 
-    openmv_th = rt_thread_create("opmv_recv", openmv_thread_entry, NULL, 1024, 10, 5);
+    openmv_th = rt_thread_create("opmv_recv", openmv_thread_entry, NULL, 2536, 10, 5);
     rt_thread_startup(openmv_th);
 
     return 0;

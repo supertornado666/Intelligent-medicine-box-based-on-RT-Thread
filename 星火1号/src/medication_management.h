@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2021, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2025-04-25     廖钟涛       the first version
- */
 #ifndef SRC_MEDICATION_MANAGEMENT_H_
 #define SRC_MEDICATION_MANAGEMENT_H_
 /*
@@ -27,6 +18,7 @@ typedef struct medicine_info {
 #include <stdlib.h>
 
 #define MAX_MEDICINE 5
+static int medicine_count = 0;
 
 // 核心药物信息结构体（在 .c 里存储）
 typedef struct {
@@ -53,9 +45,7 @@ typedef struct {
     int amount;
     int number;
 } MedicineDisplayInfo;
-
-int find_blank(void);
-int add_medicine(const char *bar_code, int times_per_day, int amount, int number);
+int add_medicine(const char *bar_code, int times_per_day, int amount);
 int del_medicine(int number);
 // find_medicine 函数原型
 matched_medicine* find_medicine(const char *time, int *found_count);
@@ -65,3 +55,44 @@ MedicineDisplayInfo* get_medicine_info(int *count);
 
 
 #endif /* SRC_MEDICATION_MANAGEMENT_H_ */
+// 3. 查找在 12:00 时需要服用的药物
+/*int found = 0;
+matched_medicine *m_list = find_medicine("12:00", &found);
+rt_kprintf("---- 12:00 had (%d ) ----\n", found);
+rt_thread_mdelay(3);
+for (int i = 0; i < found; i++) {
+rt_kprintf("  name:%s number: %d time:%s amount:%d\n",
+                                    m_list[i].name,
+                                    m_list[i].number,
+                                    m_list[i].time,
+                                    m_list[i].amount
+                                    );
+rt_thread_mdelay(3);
+                     }
+
+free(m_list);
+
+                     // 4. 删除格子号为 2 的药物
+                     if (del_medicine(2) == 0) {
+                         rt_kprintf("have deleted 2 \n");
+                         rt_thread_mdelay(3);}
+                     if (del_medicine(1) == 0) {
+                         rt_kprintf("have deleted 1 \n");
+                         rt_thread_mdelay(3);}
+                     if (del_medicine(3) == 0) {
+                         rt_kprintf("have deleted 3 \n");
+                         rt_thread_mdelay(3);}
+
+                     // 5. 再次打印当前药物列表
+                     info = get_medicine_info(&count);
+                     rt_kprintf("---- remain (%d ) ----\n", count);
+                     rt_thread_mdelay(3);
+                     for (int i = 0; i < count; i++) {
+                         rt_kprintf("name:%s  %d /day,%d /having number:%d\n",
+                                    //i,
+                                    info[i].name,
+                                    info[i].times_per_day,
+                                    info[i].amount,
+                                    info[i].number);
+                         rt_thread_mdelay(3);
+                     }*/

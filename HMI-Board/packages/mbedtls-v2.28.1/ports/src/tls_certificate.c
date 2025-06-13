@@ -43,6 +43,7 @@ const char mbedtls_root_certificate[] =
 "CAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=\r\n" \
 "-----END CERTIFICATE-----\r\n" \
 
+
 ;
 
 const size_t mbedtls_root_certificate_len = sizeof(mbedtls_root_certificate);

@@ -20,6 +20,7 @@
 #include "spi1.h"
 #include "event.h"
 #include "syn8086.h"
+#include "demo/ui/ui.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -38,8 +39,10 @@ void hal_entry(void)
     speak_event_init();
     SYN_FrameInfo("[v1]语音模块初始化成功");
 
-    rt_wlan_connect("Redmi K60 Pro", "jh15988597685");
+    rt_wlan_connect("spark", "12345678");
 
     rt_thread_mdelay(5000);
     llm2rtt_init();
+
+    lv_obj_clear_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN);
 }

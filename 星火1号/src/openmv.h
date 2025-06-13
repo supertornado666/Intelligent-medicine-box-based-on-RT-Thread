@@ -14,5 +14,6 @@ rt_device_t u2_dev;
 extern struct rt_semaphore pill_freq;
 
 int uart2_init(void);
+openmv_init(void);
 
 #endif /* SRC_OPENMV_H_ */

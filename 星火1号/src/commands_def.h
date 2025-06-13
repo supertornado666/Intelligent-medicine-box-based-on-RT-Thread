@@ -39,10 +39,12 @@
 #define MEDICINE_OUT_ERROR		"N"//药物格无药物或其他错误
 
 #define MEDICINE_TIME_ON		"P"//用药时间到，然后发送需要服用的药物的频次
+#define IDENTITY_CHECK_SUCCESS  "W"//身份正确
 #define IDENTITY_WRONG			"R"//身份不对
 #define MEDICINE_TAKE_WRONG		"Q"//取药不对
 #define NOT_LOCKED				"T"//未锁好箱子
 #define MEDICINE_TIME_TIMEOUT	"S"//未按时服药
+#define MEDICINE_TAKE_END       "X"//用药结束
 
 //To OpenMV
 #define START_SCAN				"J"//开始扫描条码，每扫到一条需重新发送
