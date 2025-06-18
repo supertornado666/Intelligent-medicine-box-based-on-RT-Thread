@@ -23,42 +23,58 @@
 #include "mqtt.h"
 #include "led.h"
 #include "medication_management.h"
+#include "medication_process.h"
+#include "infrared.h"
+#include "pwm.h"
+
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
-#include "pwm.h"
+
 #define PIN_KEY0 GET_PIN(C, 0)
 #define PIN_KEY1 GET_PIN(C, 1)
-#include "medication_process.h"
-#include "infrared.h"
-
 
 int main(void)
 {
-    rt_pin_write(GET_PIN(A, 4), PIN_HIGH);
+    wifi_connect();
+
+    rt_pin_mode(SPI_CS_PIN, PIN_MODE_OUTPUT);
+    rt_pin_write(SPI_CS_PIN, PIN_HIGH);
     rt_pin_mode(SCAN_PIN, PIN_MODE_OUTPUT);
+
     rtc_init();
     zw101_init();
     openmv_init();
     uart4_init();
     can_init();
-    spi1_init();
+    //spi1_init();
     medication_event_init();
-    wifi_connect();
-    rt_thread_mdelay(20000);
     led_init();
-    set_screen_time();
-    myaht10_init();
-    aht_mqtt_init();
-    rt_thread_mdelay(50);
-    identity_mqtt_change();
     servo_pwm_init();
     INFRA_Init();
+    set_screen_time();
+
+    rt_thread_mdelay(15000);
+    myaht10_init();
+    aht_mqtt_init();
+    rt_thread_mdelay(5000);
+    identity_mqtt_change();
+
+    //rt_pin_write(SPI_CS_PIN, PIN_LOW);
+    //spi1_write(buf, 500);
+    //rt_thread_mdelay(1000);
+    //spi1_write("rubbish data", 400);
+    //rt_pin_write(SPI_CS_PIN, PIN_HIGH);
+
+    can_send("init_end", 8);
 
     while (1)
     {
       set_screen_time();
-      rt_thread_mdelay(3000);
+      rt_thread_mdelay(15000);
+//      spi1_write(buf, 500);
+//      rt_thread_mdelay(5000);
+//      rt_device_write(u4_dev, 0, "rubbish$", strlen("rubbish$"));
     }
 
     return 0;

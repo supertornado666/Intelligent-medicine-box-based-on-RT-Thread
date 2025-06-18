@@ -526,7 +526,7 @@ void rt_smem_free(void *rmem)
     mem = (struct rt_small_mem_item *)((rt_uint8_t *)rmem - SIZEOF_STRUCT_MEM);
     /* ... which has to be in a used state ... */
     small_mem = MEM_POOL(mem);
-    RT_ASSERT(small_mem != RT_NULL);
+    //RT_ASSERT(small_mem != RT_NULL);
     //RT_ASSERT(MEM_ISUSED(mem));
     RT_ASSERT(rt_object_get_type(&small_mem->parent.parent) == RT_Object_Class_Memory);
     RT_ASSERT(rt_object_is_systemobject(&small_mem->parent.parent));

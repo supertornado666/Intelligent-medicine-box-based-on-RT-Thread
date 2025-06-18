@@ -53,12 +53,12 @@ void gpio_irq_callback(void *args)
             if (rt_pin_read(pin) == PIN_HIGH) {
                 if (target & all_pins[i].bit) {
 
-                    rt_kprintf("find hand on pin[%d]\n", i + 1);
+                    rt_kprintf("find hand on GRID[%d]\n", i + 1);
                     rt_event_send(&infra_event, all_pins[i].bit);
                 }
                 else {
                     // ❗️未授权的引脚也变高了，报警
-                    rt_kprintf("[ALERT] Unexpected high level on PIN[%d]\n", i + 1);
+                    rt_kprintf("[ALERT] Unexpected high level on GRID[%d]\n", i + 1);
                 }
             }
             break;

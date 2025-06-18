@@ -137,16 +137,16 @@
 #define RT_WLAN_DEVICE_AP_NAME "wlan1"
 #define RT_WLAN_SSID_MAX_LENGTH 32
 #define RT_WLAN_PASSWORD_MAX_LENGTH 32
-#define RT_WLAN_DEV_EVENT_NUM 2
+#define RT_WLAN_DEV_EVENT_NUM 4
 #define RT_WLAN_MANAGE_ENABLE
 #define RT_WLAN_SCAN_WAIT_MS 10000
 #define RT_WLAN_CONNECT_WAIT_MS 10000
 #define RT_WLAN_SCAN_SORT
 #define RT_WLAN_MSH_CMD_ENABLE
 #define RT_WLAN_AUTO_CONNECT_ENABLE
-#define AUTO_CONNECTION_PERIOD_MS 2000
+#define AUTO_CONNECTION_PERIOD_MS 10000
 #define RT_WLAN_CFG_ENABLE
-#define RT_WLAN_CFG_INFO_MAX 1
+#define RT_WLAN_CFG_INFO_MAX 3
 #define RT_WLAN_PROT_ENABLE
 #define RT_WLAN_PROT_NAME_LEN 8
 #define RT_WLAN_PROT_MAX 2
@@ -155,8 +155,8 @@
 #define RT_WLAN_PROT_LWIP_NAME "lwip"
 #define RT_WLAN_WORK_THREAD_ENABLE
 #define RT_WLAN_WORKQUEUE_THREAD_NAME "wlan"
-#define RT_WLAN_WORKQUEUE_THREAD_SIZE 1024
-#define RT_WLAN_WORKQUEUE_THREAD_PRIO 15
+#define RT_WLAN_WORKQUEUE_THREAD_SIZE 2048
+#define RT_WLAN_WORKQUEUE_THREAD_PRIO 10
 
 /* Using USB */
 
@@ -222,22 +222,22 @@
 #define RT_LWIP_UDP
 #define RT_LWIP_TCP
 #define RT_LWIP_RAW
-#define RT_MEMP_NUM_NETCONN 2
-#define RT_LWIP_PBUF_NUM 8
+#define RT_MEMP_NUM_NETCONN 8
+#define RT_LWIP_PBUF_NUM 32
 #define RT_LWIP_RAW_PCB_NUM 1
 #define RT_LWIP_UDP_PCB_NUM 2
-#define RT_LWIP_TCP_PCB_NUM 2
-#define RT_LWIP_TCP_SEG_NUM 20
-#define RT_LWIP_TCP_SND_BUF 3072
-#define RT_LWIP_TCP_WND 3072
+#define RT_LWIP_TCP_PCB_NUM 4
+#define RT_LWIP_TCP_SEG_NUM 40
+#define RT_LWIP_TCP_SND_BUF 8192
+#define RT_LWIP_TCP_WND 8192
 #define RT_LWIP_TCPTHREAD_PRIORITY 10
-#define RT_LWIP_TCPTHREAD_MBOX_SIZE 4
-#define RT_LWIP_TCPTHREAD_STACKSIZE 1024
+#define RT_LWIP_TCPTHREAD_MBOX_SIZE 12
+#define RT_LWIP_TCPTHREAD_STACKSIZE 2048
 #define LWIP_NO_RX_THREAD
 #define LWIP_NO_TX_THREAD
 #define RT_LWIP_ETHTHREAD_PRIORITY 12
 #define RT_LWIP_ETHTHREAD_STACKSIZE 512
-#define RT_LWIP_ETHTHREAD_MBOX_SIZE 8
+#define RT_LWIP_ETHTHREAD_MBOX_SIZE 4
 #define LWIP_NETIF_STATUS_CALLBACK 1
 #define LWIP_NETIF_LINK_CALLBACK 1
 #define SO_REUSE 1
@@ -391,6 +391,14 @@
 /* AT32 HAL & SDK Drivers */
 
 /* end of AT32 HAL & SDK Drivers */
+
+/* HC32 DDL Drivers */
+
+/* end of HC32 DDL Drivers */
+
+/* NXP HAL & SDK Drivers */
+
+/* end of NXP HAL & SDK Drivers */
 /* end of HAL & SDK Drivers */
 
 /* sensors drivers */
@@ -405,14 +413,22 @@
 /* AI packages */
 
 #define PKG_USING_LLMCHAT
-#define PKG_LLM_USING_DEEPSEEK_CLOUD
-#define PKG_LLM_API_KEY "sk-25b3e6539c054b9daba5488bb731682b"
-#define PKG_LLM_MODEL_NAME "deepseek-chat"
-#define PKG_LLM_DEEPSEEK_API_URL "https://api.deepseek.com/chat/completions"
-#define PKG_LLM_THREAD_STACK_SIZE 3584
-#define PKG_LLM_CMD_BUFFER_SIZE 512
-#define PKG_WEB_SORKET_BUFSZ 768
+//#define PKG_LLM_USING_DEEPSEEK_CLOUD
+//#define PKG_LLM_API_KEY "sk-25b3e6539c054b9daba5488bb731682b"
+//#define PKG_LLM_MODEL_NAME "deepseek-chat"
+//#define PKG_LLM_DEEPSEEK_API_URL "https://api.deepseek.com/beta/chat/completions"
+#define PKG_LLM_USING_QWEN_CLOUD
+#define PKG_LLM_API_KEY "sk-e06342ed1f6246a6b05ccd345b64d33a"
+#define PKG_LLM_MODEL_NAME "qwen-plus"
+#define PKG_LLM_QWEN_API_URL "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+#define PKG_LLM_THREAD_STACK_SIZE 20480
+#define PKG_LLM_CMD_BUFFER_SIZE 2048
+#define PKG_WEB_SORKET_BUFSZ 2048
 #define PKG_LLMCHAT_STREAM
+
+/* Enable llmchat example */
+
+/* end of Enable llmchat example */
 #define PKG_USING_LLMCHAT_LATEST_VERSION
 /* end of AI packages */
 
@@ -494,6 +510,9 @@
 #define BSP_USING_GPIO
 #define BSP_USING_ONCHIP_RTC
 #define BSP_USING_UART
+#define BSP_USING_UART1
+#define BSP_UART1_RX_BUFSIZE 256
+#define BSP_UART1_TX_BUFSIZE 0
 #define BSP_USING_UART4
 #define BSP_UART4_RX_BUFSIZE 256
 #define BSP_UART4_TX_BUFSIZE 0

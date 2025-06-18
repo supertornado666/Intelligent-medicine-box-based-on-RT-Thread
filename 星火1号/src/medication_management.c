@@ -120,7 +120,7 @@ int del_medicine(int number)
                 medicine_list[j] = medicine_list[j+1];
             }
             medicine_count--;
-            have_take[number]=0;
+            have_take[number - 1]=0;
             rt_kprintf("delete ok\n");rt_thread_mdelay(3);
             return 0;
         }

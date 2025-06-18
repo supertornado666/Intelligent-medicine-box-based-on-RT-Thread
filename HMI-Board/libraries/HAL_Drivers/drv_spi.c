@@ -52,12 +52,14 @@ void spi0_callback(spi_callback_args_t *p_args)
     rt_interrupt_leave();
 }
 
+//extern rx_buf[500];
 void spi1_callback(spi_callback_args_t *p_args)
 {
     rt_interrupt_enter();
     if (SPI_EVENT_TRANSFER_COMPLETE == p_args->event)
     {
         rt_event_send(&complete_event, RA_SPI1_EVENT);
+        //rt_kprintf("%s\n", rx_buf);
     }
     rt_interrupt_leave();
 }

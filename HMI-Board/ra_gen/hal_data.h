@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "bsp_api.h"
 #include "common_data.h"
+#include "r_sci_uart.h"
+            #include "r_uart_api.h"
 #include "r_icu.h"
 #include "r_external_irq_api.h"
 #include "r_dtc.h"
@@ -13,8 +15,6 @@
 #include "r_transfer_api.h"
 #include "r_sdhi.h"
 #include "r_sdmmc_api.h"
-#include "r_sci_uart.h"
-            #include "r_uart_api.h"
 #include "r_rtc.h"
 #include "r_rtc_api.h"
 #include "r_gpt.h"
@@ -33,6 +33,17 @@
 #include "r_glcdc.h"
             #include "r_display_api.h"
 FSP_HEADER
+/** UART on SCI Instance. */
+            extern const uart_instance_t      g_uart1;
+
+            /** Access the UART instance using these structures when calling API functions directly (::p_api is not used). */
+            extern sci_uart_instance_ctrl_t     g_uart1_ctrl;
+            extern const uart_cfg_t g_uart1_cfg;
+            extern const sci_uart_extended_cfg_t g_uart1_cfg_extend;
+
+            #ifndef user_uart1_callback
+            void user_uart1_callback(uart_callback_args_t * p_args);
+            #endif
 /** External IRQ on ICU Instance. */
 extern const external_irq_instance_t g_external_irq15;
 

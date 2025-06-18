@@ -64,7 +64,7 @@ static void take_medicine_thread(void *parameter){
         wait_for_medicine_pickup(m_list,count);
         for(int i=0;i<count;i++)
         {
-            have_take[m_list[i].number]++;
+            have_take[m_list[i].number - 1]++;
         }
         rt_event_send(medication_event, EVENT_TAKE_MEDICINE_END);
 

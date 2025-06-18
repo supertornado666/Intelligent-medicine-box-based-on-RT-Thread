@@ -38,7 +38,7 @@ static void serial4_thread_entry(void *parameter){
 //        while(rt_device_read(u4_dev, 0, &buf, 1) != 1){
 //            rt_sem_take(&u4_sem, RT_WAITING_FOREVER);
 //        }
-//        rt_kprintf("%c", buf);
+//        rt_kprintf("buf4:%c\n", buf);
 //    }
 
     //DMA接收
@@ -49,7 +49,7 @@ static void serial4_thread_entry(void *parameter){
         len = rt_device_read(u4_dev, 0, buf, rx4_len);
         buf[len] = '\0';
 
-        rt_kprintf("buf:%s\n", buf);
+        rt_kprintf("buf4:%s\n", buf);
     }
 }
 
@@ -81,7 +81,7 @@ int uart4_init(void)
 
     rt_sem_init(&u4_sem, "rx4_sem", 0, RT_IPC_FLAG_FIFO);
 
-    u4_th = rt_thread_create("u4_recv", serial4_thread_entry, NULL, 1024, 10, 5);
+    u4_th = rt_thread_create("u4_recv", serial4_thread_entry, NULL, 1536, 10, 5);
     rt_thread_startup(u4_th);
 
     return 0;

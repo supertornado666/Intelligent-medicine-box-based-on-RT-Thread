@@ -129,7 +129,7 @@ int rtc_init()
     }
 
     /* 设置日期 */
-    //ret = set_date(2025, 6, 13);
+    ret = set_date(2025, 6, 16);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC date failed\n");
@@ -137,7 +137,7 @@ int rtc_init()
     }
 
     /* 设置时间 */
-    //ret = set_time(12, 13, 0);
+    ret = set_time(7, 57, 45);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC time failed\n");

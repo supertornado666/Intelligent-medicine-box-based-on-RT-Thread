@@ -32,6 +32,8 @@ extern struct rt_semaphore read_sem, show_sem;
 static char timset[11];
 static char ahtset[35] = "温度:00.0℃    湿度:00.0%";
 static bool time_flag = false;
+extern rt_bool_t f;
+rt_bool_t voice_flag = false;
 
 static rt_thread_t voice_th;
 char voice_list[5][2];
@@ -39,7 +41,7 @@ int count, voice_num= 0;
 char voice[] = "请服用x号药x颗";
 static void voice_thread_entry(void *parameter){
 
-    while (1){
+    while (voice_flag){
         for (int i = 0; i < count; i++){
             voice[9] = voice_list[i][0];
             voice[16] = voice_list[i][1];
@@ -88,6 +90,7 @@ static void check_aht(char *command){
 static void check_med(char *command){
     if (strncmp(command, "mot", 3) == 0){
         if (command[3] == 'e'){
+            voice_flag = true;
             voice_th = rt_thread_create("voice", voice_thread_entry, RT_NULL, 2048, 22, 5);
             rt_thread_startup(voice_th);
 
@@ -186,12 +189,21 @@ static void can_rx_thread(void *parameter)
         }
         else if (!strcmp(command, MEDICINE_TIME_TIMEOUT)) {
             SYN_FrameInfo("sound313,用药超时");
-            rt_thread_delete(voice_th);
+            voice_flag = false;
+            //rt_thread_delete(voice_th);
             voice_th = RT_NULL;
         }
         else if (!strcmp(command, MEDICINE_TAKE_END)) {
-            rt_thread_delete(voice_th);
+            voice_flag = false;
+            //rt_thread_delete(voice_th);
             voice_th = RT_NULL;
+        }
+        else if (!strcmp(command, PLEASE_SCAN_AGAIN)) {
+            SYN_FrameInfo("传输错误，请重新扫描");
+            //can_send(START_SCAN, 1);
+        }
+        else if (!strcmp(command, "init_end")) {
+            f = 0;
         }
         backlight_on();
     }
@@ -247,7 +259,7 @@ int can_init(void){
     //res = rt_device_control(can_dev, RT_CAN_CMD_SET_BAUD, (void *)CAN100kBaud);
 
     /* 创建数据接收线程 */
-    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 3072, 21, 5);
+    can_th = rt_thread_create("can_rx", can_rx_thread, RT_NULL, 3072, 21, 20);
     if (can_th != RT_NULL)
     {
         rt_thread_startup(can_th);

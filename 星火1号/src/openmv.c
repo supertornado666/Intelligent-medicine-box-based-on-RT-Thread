@@ -47,29 +47,36 @@ static void openmv_thread_entry(void *parameter){
     char buf[512] = {0};
     while (1){
         rt_sem_take(&u2_sem, RT_WAITING_FOREVER);
-        while(len==0)
-        {
-        len = rt_device_read(u2_dev, 0, buf, rx2_len);
+//        while(len != 13)
+//        {
+            len += rt_device_read(u2_dev, 0, buf + len, rx2_len);
+//        }
+        if (len == 13) {
+            buf[len] = '\0';
+            len = 0;
+            rt_kprintf("buf:%s\n", buf);
+            rt_thread_mdelay(300);
+
+            can_send(MEDICINE_INFOIN_SUCCESS, 1);
+            rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
+            rt_kprintf("freq:%s",freq);
+            int ret=0;
+            ret = add_medicine(buf, freq[0] - '0', freq[2] - '0');
+
+            if (ret == 0) {
+                rt_thread_mdelay(3);
+
+                can_send(MEDICINE_IN_SUCCESS, 1);
+            }
+            else {
+                rt_kprintf("add  fail\n");
+                rt_thread_mdelay(3);
+                can_send(MEDICINE_IN_ERROR, 1);
+            }
         }
-        buf[len] = '\0';
-        rt_kprintf("buf:%s\n", buf);
-        rt_thread_mdelay(300);
-
-        can_send(MEDICINE_INFOIN_SUCCESS, 1);
-        rt_sem_take(&pill_freq, RT_WAITING_FOREVER);
-        rt_kprintf("freq:%s",freq);
-        int ret=0;
-        ret = add_medicine(buf, freq[0] - '0', freq[2] - '0');
-
-        if (ret == 0) {
-            rt_thread_mdelay(3);
-
-            can_send(MEDICINE_IN_SUCCESS, 1);
-        }
-        else {
-            rt_kprintf("add  fail\n");
-            rt_thread_mdelay(3);
-            can_send(MEDICINE_IN_ERROR, 1);
+        else{
+            can_send(PLEASE_SCAN_AGAIN, 1);
+            len = 0;
         }
 
     }

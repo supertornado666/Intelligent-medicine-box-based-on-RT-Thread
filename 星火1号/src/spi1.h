@@ -10,6 +10,8 @@
 #ifndef SRC_SPI1_H_
 #define SRC_SPI1_H_
 
+#define SPI_CS_PIN  GET_PIN(E, 11)
+
 extern char tx_buf[400];
 
 uint8_t spi1_init(void);

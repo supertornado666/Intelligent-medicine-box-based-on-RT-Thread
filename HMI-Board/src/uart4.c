@@ -25,7 +25,9 @@ static struct rt_semaphore u4_sem;
 static rt_thread_t u4_th;
 static rt_size_t rx_len = 0;
 
-char msg[512] = {0};
+char u4_buf[16] = {0};
+extern rt_bool_t speech_thread_running;
+extern struct rt_semaphore voice_sem;
 //extern struct rt_semaphore read_sem, show_sem;
 //extern bool inback_flag;
 //extern uint32_t last_touch_time;
@@ -59,9 +61,13 @@ static void serial_thread_entry(void *parameter){
 
     while (1){
         rt_sem_take(&u4_sem, RT_WAITING_FOREVER);
-        len = rt_device_read(u4_dev, 0, msg, rx_len);
-        msg[len] = '\0';
-        rt_kprintf("%s", msg);
+        len = rt_device_read(u4_dev, 0, u4_buf, rx_len);
+        u4_buf[len] = '\0';
+        rt_kprintf("%s\n", u4_buf);
+
+        if ((u4_buf[0] == 'O' || u4_buf[0] == 'J') && speech_thread_running) {
+            rt_sem_release(&voice_sem);
+        }
 
         /*
         if (rt_strstr(msg, "病情") != RT_NULL){
@@ -109,7 +115,7 @@ int uart4_init(void){
     rt_device_control(u4_dev, RT_DEVICE_CTRL_CONFIG, (void *)&u4_configs);
     rt_device_set_rx_indicate(u4_dev, rx_callback);
     rt_sem_init(&u4_sem, "rx_sem", 0, RT_IPC_FLAG_FIFO);
-    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1536, 22, 5);
+    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1536, 22, 10);
     rt_thread_startup(u4_th);
 
     return 0;

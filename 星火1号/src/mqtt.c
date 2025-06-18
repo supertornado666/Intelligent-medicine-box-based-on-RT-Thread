@@ -25,6 +25,7 @@ static char mqtt_aht_stack[4096];
 static struct rt_thread mqtt_aht;
 
 extern bool finger_flag;
+extern int have_take[5];
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -336,7 +337,7 @@ void medicine_mqtt_add(Medicine med){
         med.name,
         med.take_time[0], med.take_time[1], med.take_time[2], med.take_time[3], med.take_time[4],
         med.amount,
-        med.number,
+        have_take[med.number - 1],
         med.number
     );
 

@@ -62,17 +62,27 @@ uint8_t spi1_init(void) {
  */
 uint8_t spi1_write(uint8_t *buf, uint16_t len) {
     int s_len = strlen(buf);  // 实际内容长度
-    memset(buf + s_len, '\0', len - s_len - 1);
-    buf[399] = '\0';
+    memset(buf + s_len, 'F', len - s_len - 1);
+    buf[499] = '\0';
+    //rt_kprintf("%s\n", buf);
 
-    uint8_t send_buf[len];
+//    uint8_t send_buf[len];
+//
+//    // 初始化发送缓冲区
+//    for (uint16_t i = 0; i < len; i++) {
+//        send_buf[i] = buf[i];
+//    }
 
-    // 初始化发送缓冲区
-    for (uint16_t i = 0; i < len; i++) {
-        send_buf[i] = buf[i];
-    }
-
-    rt_spi_send(spi1_dev, send_buf, len);
+    rt_kprintf("%s\n", buf);
+    //rt_pin_write(SPI_CS_PIN, PIN_LOW);
+    //rt_thread_mdelay(500);
+    rt_spi_send(spi1_dev, buf, len);
+    //rt_thread_mdelay(500);
+    //rt_pin_write(SPI_CS_PIN, PIN_HIGH);
+//    rt_pin_mode(GET_PIN(A, 7), PIN_MODE_OUTPUT);
+//    rt_pin_write(GET_PIN(A, 7), PIN_HIGH);
+//    rt_pin_write(GET_PIN(A, 7), PIN_LOW);
+//    spi1_init();
 
     return 0;
 }

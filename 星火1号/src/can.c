@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include "commands_def.h"
 #include "openmv.h"
+#include "uart4.h"
 #include "zw101.h"
 #include "mqtt.h"
 #include "medication_management.h"
@@ -34,7 +35,7 @@ static int num1, num2;
 static bool pill_out_flag = false;
 bool finger_flag = false;
 
-char result[400] = ""; // 初始化空字符串
+char result[500] = ""; // 初始化空字符串
 
 void check_out(char *command){
     if (strcmp(command, MEDICINE_OUT_END) == 0){
@@ -44,19 +45,44 @@ void check_out(char *command){
     }
 
     if (strcmp(command, MEDICINE_OUT_1) == 0){
-        del_medicine(1);
+        if (!del_medicine(1)){
+            can_send(MEDICINE_OUT_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_OUT_ERROR, 1);
+        }
     }
     else if (strcmp(command, MEDICINE_OUT_2) == 0){
-        del_medicine(2);
+        if (!del_medicine(2)){
+            can_send(MEDICINE_OUT_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_OUT_ERROR, 1);
+        }
     }
     else if (strcmp(command, MEDICINE_OUT_3) == 0){
-        del_medicine(3);
+        if (!del_medicine(3)){
+            can_send(MEDICINE_OUT_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_OUT_ERROR, 1);
+        }
     }
     else if (strcmp(command, MEDICINE_OUT_4) == 0){
-        del_medicine(4);
+        if (!del_medicine(4)){
+            can_send(MEDICINE_OUT_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_OUT_ERROR, 1);
+        }
     }
     else if (strcmp(command, MEDICINE_OUT_5) == 0){
-        del_medicine(5);
+        if (!del_medicine(5)){
+            can_send(MEDICINE_OUT_SUCCESS, 1);
+        }
+        else{
+            can_send(MEDICINE_OUT_ERROR, 1);
+        }
     }
     command[0] = '\0';
 }
@@ -157,13 +183,18 @@ static void can_rx_thread(void *parameter)
                 MedicineDisplayInfo *info = get_medicine_info(&count);
 
                 for (int i = 0; i < count; i++) {
-                    char temp[100]; // 临时存储单条记录
-                    snprintf(temp, sizeof(temp), "药物名字:%s，一天%d次，一次%d颗，已服用%d次\n",
-                             info[i].name, info[i].times_per_day, info[i].amount, have_take[info[i].number]);
+                    char temp[100] = {0}; // 临时存储单条记录
+                    snprintf(temp, sizeof(temp), "药物名字:%s，一天%d次，一次%d份，已服用%d次。",
+                             info[i].name, info[i].times_per_day, info[i].amount, have_take[info[i].number - 1]);
+                    //rt_device_write(u4_dev, 0, temp, rt_strlen(temp));
+                    //rt_kprintf("%s\n",temp);
                     strcat(result, temp); // 追加到 result
                 }
-                rt_thread_mdelay(2000);
-                spi1_write(result,400);
+                strcat(result, "$");
+                rt_kprintf("%s\n",result);
+                //spi1_write(result,400);
+                rt_device_write(u4_dev, 0, result, strlen(result));
+                result[0] = '\0';
             }
         }
         command[0] = '\0';
@@ -184,11 +215,11 @@ int can_send(rt_uint8_t *p_buff, rt_uint32_t len)
     rt_memcpy(&msg.data[0], p_buff, len);
     /* 发送一帧 CAN 数据 */
     size = rt_device_write(can_dev, 0, &msg, sizeof(msg) );
-    if (size == 0)
-    {
-        rt_kprintf("CAN send failed: no ack or bus error\n");
-        return -1; // 发送失败
-    }
+//    if (size == 0)
+//    {
+//        rt_kprintf("CAN send failed: no ack or bus error\n");
+//        return -1; // 发送失败
+//    }
     return 0;
 }
 

@@ -54,6 +54,10 @@
             [47] = spi_tei_isr, /* SPI1 TEI (Transmission complete event) */
             [48] = spi_eri_isr, /* SPI1 ERI (Error) */
             [49] = r_icu_isr, /* ICU IRQ15 (External pin interrupt 15) */
+            [50] = sci_uart_rxi_isr, /* SCI1 RXI (Received data full) */
+            [51] = sci_uart_txi_isr, /* SCI1 TXI (Transmit data empty) */
+            [52] = sci_uart_tei_isr, /* SCI1 TEI (Transmit end) */
+            [53] = sci_uart_eri_isr, /* SCI1 ERI (Receive error) */
         };
         const bsp_interrupt_event_t g_interrupt_event_link_select[BSP_ICU_VECTOR_MAX_ENTRIES] =
         {
@@ -107,5 +111,9 @@
             [47] = BSP_PRV_IELS_ENUM(EVENT_SPI1_TEI), /* SPI1 TEI (Transmission complete event) */
             [48] = BSP_PRV_IELS_ENUM(EVENT_SPI1_ERI), /* SPI1 ERI (Error) */
             [49] = BSP_PRV_IELS_ENUM(EVENT_ICU_IRQ15), /* ICU IRQ15 (External pin interrupt 15) */
+            [50] = BSP_PRV_IELS_ENUM(EVENT_SCI1_RXI), /* SCI1 RXI (Received data full) */
+            [51] = BSP_PRV_IELS_ENUM(EVENT_SCI1_TXI), /* SCI1 TXI (Transmit data empty) */
+            [52] = BSP_PRV_IELS_ENUM(EVENT_SCI1_TEI), /* SCI1 TEI (Transmit end) */
+            [53] = BSP_PRV_IELS_ENUM(EVENT_SCI1_ERI), /* SCI1 ERI (Receive error) */
         };
         #endif

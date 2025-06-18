@@ -18,7 +18,7 @@ extern rt_device_t u4_dev;
 
 #define BUSY_PIN    BSP_IO_PORT_00_PIN_08
 
-void SYN_FrameInfo(uint8_t *HZdata);
+void SYN_FrameInfo(const char *HZdata);
 void YS_SYN_Set(uint8_t *Info_data);
 
 #endif /* APPLICATIONS_SYN6288_H_ */

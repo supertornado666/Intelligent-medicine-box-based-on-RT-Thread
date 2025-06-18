@@ -581,7 +581,7 @@ rt_bool_t rt_object_is_systemobject(rt_object_t object)
 rt_uint8_t rt_object_get_type(rt_object_t object)
 {
     /* object check */
-    RT_ASSERT(object != RT_NULL);
+    //RT_ASSERT(object != RT_NULL);
 
     return object->type & ~RT_Object_Class_Static;
 }

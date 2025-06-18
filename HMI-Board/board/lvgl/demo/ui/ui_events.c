@@ -64,7 +64,7 @@ static void tim_thread_entry(rt_thread_t *parameter){
             lv_label_set_text(ui_date, datestr);
         }
 
-        rt_thread_mdelay(10);
+        rt_thread_mdelay(600);
     }
 }
 
@@ -119,13 +119,13 @@ void update_time(lv_event_t * e)
 
     lv_obj_set_style_text_font(ui_responsetext, &restext_font, LV_PART_MAIN);
     if (tim_th == RT_NULL){
-        tim_th = rt_thread_create("tim_recv", tim_thread_entry, NULL, 1024, 24, 5);
+        tim_th = rt_thread_create("tim_recv", tim_thread_entry, NULL, 1024, 24, 20);
         rt_thread_startup(tim_th);
     }
 
     if (show_th == RT_NULL){
         rt_sem_init(&show_sem, "show_sem", 0, RT_IPC_FLAG_FIFO);
-        show_th = rt_thread_create("show_recv", show_thread_entry, NULL, 1024, 25, 5);
+        show_th = rt_thread_create("show_recv", show_thread_entry, NULL, 1024, 25, 20);
         rt_thread_startup(show_th);
     }
 
@@ -188,7 +188,7 @@ void read_thread_entry(rt_thread_t *parameter){
             //lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
 
-            del_th = rt_thread_create("del_recv", del_thread_entry, NULL, 1024, 23, 5);
+            del_th = rt_thread_create("del_recv", del_thread_entry, NULL, 1024, 23, 20);
             rt_thread_startup(del_th);
             return;
         }
@@ -214,7 +214,7 @@ void read_finger(lv_event_t * e)
 
     inback_flag = false;
     rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
-    read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 22, 5);
+    read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 22, 20);
     rt_thread_startup(read_th);
 }
 
@@ -227,7 +227,7 @@ void read_bar(lv_event_t * e)
 
         inback_flag = false;
         rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
-        read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 21, 5);
+        read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 21, 20);
         rt_thread_startup(read_th);
     }
     else{

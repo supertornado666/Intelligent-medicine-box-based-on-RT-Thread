@@ -14,16 +14,40 @@
 #include <src/syn8086.h>
 #include "string.h"
 
+static char Voice_data[130];
+
+void remove_newlines(char *str)
+{
+    if (str == NULL) return;
+
+    char *src = str;
+    char *dst = str;
+
+    while (*src)
+    {
+        if (*src != '\n')
+        {
+            *dst++ = *src;
+        }
+        src++;
+    }
+    *dst = '\0';  // 终止新字符串
+}
+
 
 //Music:选择背景音乐。0:无背景音乐，1~15：选择背景音乐
-void SYN_FrameInfo(uint8_t *HZdata)
+void SYN_FrameInfo(const char *HZdata)
 {
+    strncpy(Voice_data, HZdata, sizeof(Voice_data) - 1);
+    Voice_data[sizeof(Voice_data) - 1] = '\0';
+    remove_newlines(Voice_data);
+
   /****************需要发送的文本**********************************/
-  unsigned  char  Frame_Info[200];
+  unsigned  char  Frame_Info[120];
   unsigned  char  HZ_Length;
   //unsigned  char  ecc  = 0;             //定义校验字节
   //unsigned  int i = 0;
-  HZ_Length = strlen((char*)HZdata);            //需要发送文本的长度
+  HZ_Length = strlen((char*)Voice_data);            //需要发送文本的长度
   //rt_kprintf("%d", HZ_Length);
 
   /*****************帧固定配置信息**************************************/
@@ -44,7 +68,7 @@ void SYN_FrameInfo(uint8_t *HZdata)
 //    ecc = ecc ^ (HZdata[i]);                //对发送的字节进行异或校验
 //  }
   /*******************发送帧信息***************************************/
-  memcpy(&Frame_Info[5], HZdata, HZ_Length);
+  memcpy(&Frame_Info[5], Voice_data, HZ_Length);
   //Frame_Info[5 + HZ_Length] = ecc;
   //USART3_SendString(Frame_Info, 5 + HZ_Length + 1);
   rt_device_write(u4_dev, 0, Frame_Info, 5 + HZ_Length);
