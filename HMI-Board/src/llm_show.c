@@ -8,7 +8,6 @@
  * 2025-03-29     廖钟涛       the first version
  */
 #include "llm_show.h"
-#include <rtthread.h>
 #include "demo/ui/ui.h"
 #include "syn8086.h"
 
@@ -17,25 +16,25 @@
 
 volatile rt_bool_t speech_thread_running = RT_FALSE;
 
-static char full_response[130];
+static rt_uint8_t full_response[130];
 static int response_offset = 0;
 
-static char playback_queue[PLAYBACK_QUEUE_SIZE][PLAYBACK_SEGMENT_LEN];
-int playback_queue_head = 0;
-int playback_queue_tail = 0;
+static rt_uint8_t playback_queue[PLAYBACK_QUEUE_SIZE][PLAYBACK_SEGMENT_LEN];
+rt_uint8_t playback_queue_head = 0;
+rt_uint8_t playback_queue_tail = 0;
 //static rt_mutex_t playback_queue_mutex;
 
-extern char u4_buf[16];
+extern rt_uint8_t u4_buf[16];
 struct rt_semaphore voice_sem;
 
 rt_thread_t voice_td;
 
 // 每次格式化最多显示 3 行 15 字符，并返回这次处理了多少字节
-static int format_multiline_text(const char *src, char *dst, int max_lines, int chars_per_line) {
+static rt_uint8_t format_multiline_text(const rt_uint8_t *src, rt_uint8_t *dst, int max_lines, int chars_per_line) {
     int lines = 0, chars = 0;
-    const char *p = src;
-    char *d = dst;
-    const char *start = src;
+    const rt_uint8_t *p = src;
+    rt_uint8_t *d = dst;
+    const rt_uint8_t *start = src;
 
     while (*p && lines < max_lines) {
         // 过滤掉文本中的 \\n
@@ -51,12 +50,12 @@ static int format_multiline_text(const char *src, char *dst, int max_lines, int 
         }
 
         // 处理ASCII字符
-        if ((unsigned char)*p < 0x80) {
+        if ((rt_uint8_t)*p < 0x80) {
             *d++ = *p++;
             chars++;
         }
         // 处理UTF-8三字节中文
-        else if ((unsigned char)*p >= 0xE0) {
+        else if ((rt_uint8_t)*p >= 0xE0) {
             if (*(p + 1) && *(p + 2)) {
                 *d++ = *p++;
                 *d++ = *p++;
@@ -86,7 +85,7 @@ static int format_multiline_text(const char *src, char *dst, int max_lines, int 
 
 // 分段更新 label 的回调函数
 static void update_label_cb(void *param) {
-    char formatted_text[130];
+    rt_uint8_t formatted_text[130];
 
     int step = format_multiline_text(full_response + response_offset, formatted_text, MAX_LINES, CHARS_PER_LINE);
 
@@ -101,7 +100,7 @@ static void update_label_cb(void *param) {
         response_offset += step;
 
         // 如果还有剩余文本，延迟继续显示下一段
-        if (response_offset < strlen(full_response)) {
+        if (response_offset < rt_strlen(full_response)) {
             lv_timer_t *timer = lv_timer_create_basic();
             //lv_timer_set_period(timer, 5000); // 每 3 秒更新一次
             lv_timer_set_repeat_count(timer, 1); // 执行一次
@@ -123,15 +122,15 @@ static void update_label_cb(void *param) {
 }
 
 // 初始化显示（首次调用）
-void show_response_segmented(const char *text) {
+void show_response_segmented(const rt_uint8_t *text) {
     rt_strncpy(full_response, text, sizeof(full_response) - 1);
     full_response[sizeof(full_response) - 1] = '\0';
     response_offset = 0;
-    update_label_cb(NULL);
+    update_label_cb(RT_NULL);
 }
 
 /* 入队函数 */
-rt_bool_t enqueue_to_playback_queue(const char *segment)
+rt_bool_t enqueue_to_playback_queue(const rt_uint8_t *segment)
 {
     //rt_mutex_take(playback_queue_mutex, RT_WAITING_FOREVER);
 
@@ -153,7 +152,7 @@ rt_bool_t enqueue_to_playback_queue(const char *segment)
 }
 
 /* 出队函数 */
-rt_bool_t dequeue_from_playback_queue(char *buffer, int buf_len)
+rt_bool_t dequeue_from_playback_queue(rt_uint8_t *buffer, int buf_len)
 {
     //rt_mutex_take(playback_queue_mutex, RT_WAITING_FOREVER);
 
@@ -174,7 +173,7 @@ rt_bool_t dequeue_from_playback_queue(char *buffer, int buf_len)
 
 static void speech_playback_thread(void *parameter)
 {
-    char segment[PLAYBACK_SEGMENT_LEN];
+    rt_uint8_t segment[PLAYBACK_SEGMENT_LEN];
 
     while (speech_thread_running)
     {
@@ -211,6 +210,7 @@ void start_show(void){
                                RT_NULL,
                                3584, 20, 10);
     rt_thread_startup(voice_td);
+    lv_obj_add_flag(ui_Spinner1, LV_OBJ_FLAG_HIDDEN);
     rt_sem_release(&voice_sem);
 }
 

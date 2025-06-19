@@ -10,6 +10,9 @@
 #ifndef SRC_STANDBY_TIMER_H_
 #define SRC_STANDBY_TIMER_H_
 
+#include <rtthread.h>
+#include "hal_data.h"
+
 void backlight_on(void);
 
 #endif /* SRC_STANDBY_TIMER_H_ */

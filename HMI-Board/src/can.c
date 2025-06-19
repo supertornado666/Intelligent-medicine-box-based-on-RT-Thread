@@ -9,40 +9,39 @@
  */
 
 #include "can.h"
-#include <rtthread.h>
-#include <rtdbg.h>
-#include "hal_data.h"
-#include <rtdevice.h>
+
 #include "standby_timer.h"
 #include "commands_def.h"
 #include "demo/ui/ui.h"
 #include "syn8086.h"
-#include "event.h"
-#include "spi1.h"
+//#include "event.h"
+//#include "spi1.h"
 
+#include <rtdbg.h>
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
 static struct rt_semaphore can_rx_sem;     /* 用于接收消息的信号量 */
 static rt_device_t can_dev;            /* CAN 设备句柄 */
 
-char command[9] = {0};
+rt_uint8_t command[9] = {0};
 extern struct rt_semaphore read_sem, show_sem;
 //extern bool inback_flag;
-static char timset[11];
-static char ahtset[35] = "温度:00.0℃    湿度:00.0%";
-static bool time_flag = false;
+static rt_uint8_t timset[11];
+static rt_uint8_t ahtset[35] = "温度:00.0℃    湿度:00.0%";
+static rt_bool_t time_flag = RT_FALSE;
 extern rt_bool_t f;
-rt_bool_t voice_flag = false;
+static rt_bool_t voice_flag = RT_FALSE;
 
 static rt_thread_t voice_th;
-char voice_list[5][2];
-int count, voice_num= 0;
-char voice[] = "请服用x号药x颗";
+static rt_uint8_t voice_list[5][2];
+static rt_uint8_t count, voice_num= 0;
+static rt_uint8_t voice[] = "请服用x号药x份";
+
 static void voice_thread_entry(void *parameter){
 
     while (voice_flag){
-        for (int i = 0; i < count; i++){
+        for (rt_uint8_t i = 0; i < count; i++){
             voice[9] = voice_list[i][0];
             voice[16] = voice_list[i][1];
             SYN_FrameInfo(voice);
@@ -54,43 +53,39 @@ static void voice_thread_entry(void *parameter){
     }
 }
 
-static void check_time(char *command){
-    if (strncmp(command, "times:", 6) == 0)  // 前 6 个字符等于 "times:"
+static void check_time(rt_uint8_t *command){
+    if (rt_strncmp(command, "times:", 6) == 0)  // 前 6 个字符等于 "times:"
     {
         rt_memcpy(timset, command + 6, 2);
-        time_flag = true;
+        time_flag = RT_TRUE;
     }
     else if (time_flag){
         rt_memcpy(timset + 2, command, 8);
         timset[10] = '\0';
         //rt_kprintf("%s\n", timset);
-        time_t timestamp;
+        rt_time_t timestamp;
         timestamp = strtol(timset, NULL, 10);
         set_timestamp(timestamp);
-        time_flag = false;
+        time_flag = RT_FALSE;
     }
-
-    return;
 }
 
-static void check_aht(char *command){
-    if (strncmp(command, "hum:", 4) == 0)  // 前4个字符等于 "hum:"
+static void check_aht(rt_uint8_t *command){
+    if (rt_strncmp(command, "hum:", 4) == 0)  // 前4个字符等于 "hum:"
     {
         rt_memcpy(&ahtset[25], command + 4, 4);
     }
-    else if (strncmp(command, "tem:", 4) == 0){
+    else if (rt_strncmp(command, "tem:", 4) == 0){
         rt_memcpy(&ahtset[7], command + 4, 4);
         //rt_kprintf("%s\n", ahtset);
         lv_label_set_text(ui_aht, ahtset);
     }
-
-    return;
 }
 
-static void check_med(char *command){
-    if (strncmp(command, "mot", 3) == 0){
+static void check_med(rt_uint8_t *command){
+    if (rt_strncmp(command, "mot", 3) == 0){
         if (command[3] == 'e'){
-            voice_flag = true;
+            voice_flag = RT_TRUE;
             voice_th = rt_thread_create("voice", voice_thread_entry, RT_NULL, 2048, 22, 5);
             rt_thread_startup(voice_th);
 
@@ -103,8 +98,6 @@ static void check_med(char *command){
             voice_num++;
         }
     }
-
-    return;
 }
 
 /* 接收数据回调函数 */
@@ -148,68 +141,71 @@ static void can_rx_thread(void *parameter)
         rt_sem_take(&can_rx_sem, RT_WAITING_FOREVER);
         /* 从 CAN 读取一帧数据 */
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
-        sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
+        rt_sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
 
         check_time(command);
         check_aht(command);
         check_med(command);
         //rt_kprintf("buf:%s\n", command);
-        if (strcmp(command, SHOW_SMILE) >= 0 && strcmp(command, SHOW_EMO_END) <= 0) {
+        if (rt_strcmp(command, SHOW_SMILE) >= 0 && rt_strcmp(command, SHOW_EMO_END) <= 0) {
             rt_sem_release(&show_sem);
             //rt_kprintf("buf:%s\n", command);
         }
-        else if (!strcmp(command, IDENTITY_SUCCESS) || !strcmp(command, MEDICINE_INFOIN_SUCCESS)) {
+        else if (!rt_strcmp(command, IDENTITY_SUCCESS) || !rt_strcmp(command, MEDICINE_INFOIN_SUCCESS)) {
             SYN_FrameInfo("sound902");
             rt_sem_release(&read_sem);
             //rt_kprintf("buf:%s\n", command);
         }
-        else if (!strcmp(command, MEDICINE_IN_SUCCESS)) {
+        else if (!rt_strcmp(command, MEDICINE_IN_SUCCESS)) {
             SYN_FrameInfo("药物录入成功");
         }
-        else if (!strcmp(command, MEDICINE_IN_ERROR)) {
+        else if (!rt_strcmp(command, MEDICINE_IN_ERROR)) {
             SYN_FrameInfo("药物录入失败");
         }
-        else if (!strcmp(command, MEDICINE_OUT_SUCCESS)) {
+        else if (!rt_strcmp(command, MEDICINE_OUT_SUCCESS)) {
             SYN_FrameInfo("药物移除成功");
         }
-        else if (!strcmp(command, MEDICINE_OUT_ERROR)) {
+        else if (!rt_strcmp(command, MEDICINE_OUT_ERROR)) {
             SYN_FrameInfo("药物移除失败");
         }
-        else if (!strcmp(command, MEDICINE_TIME_ON)) {
+        else if (!rt_strcmp(command, MEDICINE_TIME_ON)) {
             SYN_FrameInfo("sound123,用药时间到，请先验证身份");
         }
-        else if (!strcmp(command, IDENTITY_WRONG)) {
+        else if (!rt_strcmp(command, IDENTITY_WRONG)) {
             SYN_FrameInfo("身份验证失败");
         }
-        else if (!strcmp(command, MEDICINE_TAKE_WRONG)) {
+        else if (!rt_strcmp(command, MEDICINE_TAKE_WRONG)) {
             SYN_FrameInfo("现在无需服用此药，请放回");
         }
-        else if (!strcmp(command, NOT_LOCKED)) {
+        else if (!rt_strcmp(command, NOT_LOCKED)) {
             SYN_FrameInfo("药箱未合上，请盖下盖子");
         }
-        else if (!strcmp(command, MEDICINE_TIME_TIMEOUT)) {
+        else if (!rt_strcmp(command, MEDICINE_TIME_TIMEOUT)) {
             SYN_FrameInfo("sound313,用药超时");
-            voice_flag = false;
+            voice_flag = RT_FALSE;
             //rt_thread_delete(voice_th);
             voice_th = RT_NULL;
         }
-        else if (!strcmp(command, MEDICINE_TAKE_END)) {
-            voice_flag = false;
+        else if (!rt_strcmp(command, MEDICINE_TAKE_END)) {
+            voice_flag = RT_FALSE;
             //rt_thread_delete(voice_th);
             voice_th = RT_NULL;
         }
-        else if (!strcmp(command, PLEASE_SCAN_AGAIN)) {
+        else if (!rt_strcmp(command, PLEASE_SCAN_AGAIN)) {
             SYN_FrameInfo("传输错误，请重新扫描");
             //can_send(START_SCAN, 1);
         }
-        else if (!strcmp(command, "init_end")) {
+        else if (!rt_strcmp(command, "init_end")) {
             f = 0;
         }
+//        else if (!strcmp(command, RESET_HMI)) {
+//            NVIC_SystemReset();
+//        }
         backlight_on();
     }
 }
 
-int can_send(rt_uint8_t *p_buff, rt_uint32_t len)
+rt_uint8_t can_send(rt_uint8_t *p_buff, rt_uint32_t len)
 {
     static struct rt_can_msg msg = {0};
     static rt_size_t  size;
@@ -224,12 +220,12 @@ int can_send(rt_uint8_t *p_buff, rt_uint32_t len)
     if (size == 0)
     {
         rt_kprintf("CAN send failed: no ack or bus error\n");
-        return -1; // 发送失败
+        return -RT_ERROR; // 发送失败
     }
-    return 0;
+    return RT_EOK;
 }
 
-int can_init(void){
+rt_uint8_t can_init(void){
     static rt_err_t ret;
     static rt_thread_t can_th;
 
@@ -245,7 +241,7 @@ int can_init(void){
     ret = rt_device_open(can_dev, RT_DEVICE_FLAG_INT_TX | RT_DEVICE_FLAG_INT_RX);
     if (ret < 0){
         LOG_E("rt_device_open[can0] failed...\n");
-        return -2;
+        return -RT_ERROR;
     }
 
     /* 设置接收回调函数 */

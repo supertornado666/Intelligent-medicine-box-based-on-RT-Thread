@@ -10,12 +10,13 @@
 #ifndef SRC_EVENT_H_
 #define SRC_EVENT_H_
 
-#include <rtdef.h>
+#include <rtthread.h>
+#include "hal_data.h"
 
 extern rt_event_t speak_event;
 #define EVENT_GET_INFO      (0x1 << 0)
 #define EVENT_CALL_DEEPSEEK (0x1 << 1)
 
-int speak_event_init(void);
+rt_uint8_t speak_event_init(void);
 
 #endif /* SRC_EVENT_H_ */

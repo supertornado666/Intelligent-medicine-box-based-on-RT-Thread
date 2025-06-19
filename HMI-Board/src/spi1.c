@@ -9,12 +9,9 @@
  */
 
 #include "spi1.h"
-#include <rtthread.h>
-#include <rtdbg.h>
-#include <rtdevice.h>
-#include "hal_data.h"
 #include "event.h"
 
+#include <rtdbg.h>
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
@@ -22,8 +19,8 @@
 static struct rt_spi_device *spi1_dev = RT_NULL;
 rt_bool_t f = 1;
 
-char rx_buf[500];
-extern char m_buf[500];
+rt_uint8_t rx_buf[500];
+extern rt_uint8_t m_buf[500];
 
 //static void spi1_thread_entry(void *parameter){
 //
@@ -90,7 +87,7 @@ void irq15_callback(external_irq_callback_args_t * p_args)
 //    rt_interrupt_leave();
 }
 
-int spi1_init(void){
+rt_uint8_t spi1_init(void){
     if (R_SPI_Open(&g_spi1_ctrl, &g_spi1_cfg) != FSP_SUCCESS) rt_kprintf("spi1 fail\n");
 
 //    R_ICU_ExternalIrqOpen(&g_external_irq15_ctrl, &g_external_irq15_cfg);
@@ -138,5 +135,5 @@ int spi1_init(void){
 //    spi1_th = rt_thread_create("spi1_recv", spi1_thread_entry, NULL, 2048, 22, 10);
 //    rt_thread_startup(spi1_th);
 
-    return 0;
+    return RT_EOK;
 }

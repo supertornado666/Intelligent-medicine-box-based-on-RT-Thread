@@ -10,13 +10,13 @@
 #ifndef SRC_LLM_SHOW_H_
 #define SRC_LLM_SHOW_H_
 
-#include <rtdef.h>
+#include <rtthread.h>
 
 #define PLAYBACK_QUEUE_SIZE 20     // 最多缓存10段语音
 #define PLAYBACK_SEGMENT_LEN 130   // 每段最多128字符
 
-void show_response_segmented(const char *text);
-rt_bool_t enqueue_to_playback_queue(const char *segment);
+void show_response_segmented(const rt_uint8_t *text);
+rt_bool_t enqueue_to_playback_queue(const rt_uint8_t *segment);
 void speech_system_init(void);
 void start_show(void);
 

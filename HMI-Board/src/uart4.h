@@ -10,11 +10,13 @@
 #ifndef SRC_UART4_H_
 #define SRC_UART4_H_
 
+#include <rtthread.h>
 #include <rtdevice.h>
+#include "hal_data.h"
 
 extern rt_device_t u4_dev;
 //extern char command[8];
 
-int uart4_init(void);
+rt_uint8_t uart4_init(void);
 
 #endif /* SRC_UART4_H_ */

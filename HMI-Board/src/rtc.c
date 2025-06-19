@@ -22,7 +22,7 @@ static rt_sem_t rtc_init_sem = RT_NULL;
 //static time_t now;
 //static struct tm safe_tm;
 
-int user_rtc_init(void)
+rt_uint8_t user_rtc_init(void)
 {
     static rt_err_t ret = RT_EOK;
     static rt_device_t device = RT_NULL;
@@ -32,20 +32,20 @@ int user_rtc_init(void)
     if(rtc_init_sem == RT_NULL)
     {
         rt_kprintf("rtc sem init failed!");
-        return RT_ERROR;
+        return -RT_ERROR;
     }
     /*寻找设备*/
     device = rt_device_find(RTC_NAME);
     if (!device)
     {
         rt_kprintf("find %s failed!", RTC_NAME);
-        return RT_ERROR;
+        return -RT_ERROR;
     }
     /*初始化RTC设备*/
     if(rt_device_open(device, 0) != RT_EOK)
     {
         rt_kprintf("open %s failed!", RTC_NAME);
-        return RT_ERROR;
+        return -RT_ERROR;
     }
     /* 设置日期 */
     //ret = set_date(2025, 03, 20);

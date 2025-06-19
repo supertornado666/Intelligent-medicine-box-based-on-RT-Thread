@@ -10,10 +10,12 @@
 #ifndef SRC_UART1_H_
 #define SRC_UART1_H_
 
+#include <rtthread.h>
 #include <rtdevice.h>
+#include "hal_data.h"
 
 extern rt_device_t u1_dev;
 
-int uart1_init(void);
+rt_uint8_t uart1_init(void);
 
 #endif /* SRC_UART1_H_ */

@@ -5,48 +5,86 @@
 
 #include "ui.h"
 #include <rtthread.h>
+#include <rtdevice.h>
+#include "hal_data.h"
+
 #include "uart4.h"
 #include "can.h"
 #include "commands_def.h"
-#include <stdio.h>
-#include <rtdevice.h>
-#include <rtdbg.h>
-#include <r_gpt.h>
-#include "hal_data.h"
 #include "standby_timer.h"
 #include "llm.h"
 #include "event.h"
 #include "syn8086.h"
 
+#include <rtdbg.h>
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
 struct rt_semaphore read_sem, show_sem;
-bool inback_flag = true;
-bool finger_flag = false;
-static rt_thread_t read_th, del_th, tim_th = RT_NULL, show_th = RT_NULL;
+rt_bool_t inback_flag = true;
+rt_bool_t finger_flag = false;
+static rt_thread_t read_th, del_th, tim_th = RT_NULL,
+                    show_th = RT_NULL, start_th = RT_NULL;
 static lv_obj_t * kb;
 
-static time_t last;
+static rt_time_t last;
 static struct tm nowtime;
-static time_t now;
-static char timstr[9], datestr[23];
-static const char *week_str[] = {"日", "一", "二", "三", "四", "五", "六"};
+static rt_time_t now;
+static rt_uint8_t timstr[9], datestr[23];
+static const rt_uint8_t *week_str[] = {"日", "一", "二", "三", "四", "五", "六"};
+
+typedef struct {
+    rt_uint8_t id;
+    const rt_uint8_t *name;
+} VoiceEntry;
+
+const VoiceEntry voice_list[] = {
+    { 3,  "晓玲" },
+    { 51, "尹小坚" },
+    { 52, "易小强" },
+    { 53, "田蓓蓓" },
+    { 54, "唐老鸭" },
+    { 55, "小燕子" },
+    { 56, "贝童" },
+    { 57, "晓可" }
+};
+
+const rt_uint32_t time_values[] = {
+    10000,
+    30000,
+    60000,
+    300000,  // 5min
+    600000,  // 10min
+    0     // never
+};
 
 extern llm_shared_data_t llm_answer;
-extern char msg[512];
+extern rt_uint8_t msg[512];
 //extern struct rt_semaphore call_deepseek_sem;
 extern lv_font_t restext_font;
+extern rt_uint16_t light_volume;
+extern rt_uint32_t light_time;
 
-extern uint32_t last_touch_time;
-void touch_event_handler(lv_event_t * e){
-    last_touch_time = lv_tick_get();
-    backlight_on();
+extern rt_uint32_t last_touch_time;
+
+static void start_thread_entry(rt_thread_t *parameter){
+    rt_uint8_t i = 0;
+    while (1){
+        if (lv_bar_get_value(ui_Bar1) == 100){
+            start_th = RT_NULL;
+            break;
+        }
+        while (i++ < 90){
+            lv_bar_set_value(ui_Bar1, i, LV_ANIM_ON);
+            rt_thread_mdelay(200);
+        }
+        rt_thread_mdelay(1000);
+    }
 }
 
 static void tim_thread_entry(rt_thread_t *parameter){
     last = time(RT_NULL);
-    static int last_day = -1;
+    static rt_uint8_t last_day = -1;
 
     while (true){
         now = time(RT_NULL);
@@ -69,7 +107,7 @@ static void tim_thread_entry(rt_thread_t *parameter){
 }
 
 static void show_thread_entry(rt_thread_t *parameter){
-    static char safe_buf[PKG_WEB_SORKET_BUFSZ];
+    //static char safe_buf[PKG_WEB_SORKET_BUFSZ];
     while (true){
         rt_sem_take(&show_sem, RT_WAITING_FOREVER);
         /*
@@ -113,38 +151,6 @@ static void show_thread_entry(rt_thread_t *parameter){
     }
 }
 
-void update_time(lv_event_t * e)
-{
-    // Your code here
-
-    lv_obj_set_style_text_font(ui_responsetext, &restext_font, LV_PART_MAIN);
-    if (tim_th == RT_NULL){
-        tim_th = rt_thread_create("tim_recv", tim_thread_entry, NULL, 1024, 24, 20);
-        rt_thread_startup(tim_th);
-    }
-
-    if (show_th == RT_NULL){
-        rt_sem_init(&show_sem, "show_sem", 0, RT_IPC_FLAG_FIFO);
-        show_th = rt_thread_create("show_recv", show_thread_entry, NULL, 1024, 25, 20);
-        rt_thread_startup(show_th);
-    }
-
-}
-
-void disease_anl(lv_event_t * e)
-{
-    // Your code here
-    if (finger_flag){
-        strcpy(msg, "根据用药分析我的病情：");
-        rt_event_send(speak_event, EVENT_GET_INFO);
-        //rt_sem_release(&call_deepseek_sem);
-        can_send(MEDICINE_GET_INFO, 1);
-    }
-    else{
-        SYN_FrameInfo("请先进行身份绑定");
-    }
-}
-
 void del_thread_entry(rt_thread_t *parameter){
     rt_sem_detach(&read_sem);
     rt_thread_delete(read_th);
@@ -172,26 +178,66 @@ void read_thread_entry(rt_thread_t *parameter){
                 lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
-                finger_flag = true;
+                finger_flag = RT_TRUE;
             }
             else{
                 lv_label_set_text(ui_loginouttext, "身份绑定");
                 lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_diseasebutton, LV_OBJ_FLAG_HIDDEN);
-                finger_flag = false;
+                finger_flag = RT_FALSE;
             }
 
-            inback_flag = true;
+            inback_flag = RT_TRUE;
 
             //lv_obj_clear_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_clear_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
             //lv_obj_clear_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
 
-            del_th = rt_thread_create("del_recv", del_thread_entry, NULL, 1024, 23, 20);
+            del_th = rt_thread_create("del_recv", del_thread_entry, RT_NULL, 1024, 23, 20);
             rt_thread_startup(del_th);
             return;
         }
+    }
+}
+
+void touch_event_handler(lv_event_t * e){
+    last_touch_time = lv_tick_get();
+    backlight_on();
+}
+
+void update_time(lv_event_t * e)
+{
+    // Your code here
+    if (start_th == RT_NULL){
+        start_th = rt_thread_create("start_td", start_thread_entry, RT_NULL, 1024, 24, 20);
+        rt_thread_startup(start_th);
+    }
+    lv_obj_set_style_text_font(ui_responsetext, &restext_font, LV_PART_MAIN);
+    if (tim_th == RT_NULL){
+        tim_th = rt_thread_create("tim_td", tim_thread_entry, RT_NULL, 1024, 24, 20);
+        rt_thread_startup(tim_th);
+    }
+
+    if (show_th == RT_NULL){
+        rt_sem_init(&show_sem, "show_sem", 0, RT_IPC_FLAG_FIFO);
+        show_th = rt_thread_create("show_td", show_thread_entry, RT_NULL, 1024, 25, 20);
+        rt_thread_startup(show_th);
+    }
+
+}
+
+void disease_anl(lv_event_t * e)
+{
+    // Your code here
+    if (finger_flag){
+        rt_strcpy(msg, "根据用药分析我的病情：");
+        rt_event_send(speak_event, EVENT_GET_INFO);
+        //rt_sem_release(&call_deepseek_sem);
+        can_send(MEDICINE_GET_INFO, 1);
+    }
+    else{
+        SYN_FrameInfo("请先进行身份绑定");
     }
 }
 
@@ -212,9 +258,9 @@ void read_finger(lv_event_t * e)
     //lv_obj_add_flag(ui_medicineinbutton, LV_OBJ_FLAG_HIDDEN);
     //lv_obj_add_flag(ui_medicineoutbutton, LV_OBJ_FLAG_HIDDEN);
 
-    inback_flag = false;
+    inback_flag = RT_FALSE;
     rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
-    read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 22, 20);
+    read_th = rt_thread_create("read_recv", read_thread_entry, RT_NULL, 1024, 22, 20);
     rt_thread_startup(read_th);
 }
 
@@ -225,9 +271,9 @@ void read_bar(lv_event_t * e)
     if (finger_flag){
         can_send(MEDICINE_IN_BEGIN, 1);
 
-        inback_flag = false;
+        inback_flag = RT_FALSE;
         rt_sem_init(&read_sem, "read_sem", 0, RT_IPC_FLAG_FIFO);
-        read_th = rt_thread_create("read_recv", read_thread_entry, NULL, 1024, 21, 20);
+        read_th = rt_thread_create("read_recv", read_thread_entry, RT_NULL, 1024, 21, 20);
         rt_thread_startup(read_th);
     }
     else{
@@ -238,7 +284,7 @@ void read_bar(lv_event_t * e)
 void m_inback(lv_event_t * e)
 {
     // Your code here
-    inback_flag = true;
+    inback_flag = RT_TRUE;
 
     //rt_device_write(u4_dev, 0, MEDICINE_IN_END, 1);
     can_send(MEDICINE_IN_END, 1);
@@ -251,16 +297,16 @@ void msg_send(lv_event_t * e)
 {
 	// Your code here
     kb = lv_event_get_target(e);  // 获取触发事件的对象
-    const char * txt = lv_btnmatrix_get_btn_text(kb, lv_btnmatrix_get_selected_btn(kb));// 获取按键文本
+    const rt_uint8_t * txt = lv_btnmatrix_get_btn_text(kb, lv_btnmatrix_get_selected_btn(kb));// 获取按键文本
 
     if (txt == LV_SYMBOL_OK){
         lv_obj_add_flag(ui_Panel1, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_scanhint, LV_OBJ_FLAG_HIDDEN);
 
-        static char msg[20] = {};
-        const char * times = lv_textarea_get_text(ui_times);
-        const char * amount = lv_textarea_get_text(ui_amount);
-        sprintf(msg, "%s,%s", times, amount);
+        static rt_uint8_t msg[20] = {};
+        const rt_uint8_t * times = lv_textarea_get_text(ui_times);
+        const rt_uint8_t * amount = lv_textarea_get_text(ui_amount);
+        rt_sprintf(msg, "%s,%s", times, amount);
 
         //rt_device_write(u4_dev, 0, msg, rt_strlen(msg));
         can_send(msg, rt_strlen(msg));
@@ -299,4 +345,57 @@ void m_outback(lv_event_t * e)
     // Your code here
     //rt_device_write(u4_dev, 0, MEDICINE_OUT_END, 1);
     can_send(MEDICINE_OUT_END, 1);
+}
+
+void force_lock(lv_event_t * e)
+{
+	// Your code here
+    can_send(FORCE_LOCK, 1);
+}
+
+void voiceset_change(lv_event_t * e)
+{
+	// Your code here
+    if (!lv_obj_has_state(ui_voiceswitch, LV_STATE_CHECKED)){
+        SYN_FrameInfo("[v0]");
+    }
+    else{
+        rt_uint8_t temp[8];
+        rt_uint8_t value = lv_slider_get_value(ui_volumeset);
+        rt_snprintf(temp, sizeof(temp), "[v%d]", value);
+        SYN_FrameInfo(temp);
+    }
+}
+
+void volume_set(lv_event_t * e)
+{
+	// Your code here
+    rt_uint8_t temp[64];
+    rt_uint8_t value = lv_slider_get_value(ui_volumeset);
+    rt_snprintf(temp, sizeof(temp), "[v%d]这样的声音大小合适吗", value);
+    SYN_FrameInfo(temp);
+}
+
+void person_change(lv_event_t * e)
+{
+	// Your code here
+    rt_uint8_t temp[64];
+    rt_uint8_t index = lv_dropdown_get_selected(ui_personchoose);
+    rt_snprintf(temp, sizeof(temp), "[m%d]你好，我是%s", voice_list[index].id,
+                                                    voice_list[index].name);
+    SYN_FrameInfo(temp);
+}
+
+void light_change(lv_event_t * e)
+{
+	// Your code here
+    light_volume = lv_slider_get_value(ui_lightset);
+    R_GPT_DutyCycleSet(&g_timer5_ctrl, light_volume, GPT_IO_PIN_GTIOCB);
+}
+
+void light_time_change(lv_event_t * e)
+{
+	// Your code here
+    rt_uint8_t selected_index = lv_roller_get_selected(ui_lighttimeset);
+    light_time = time_values[selected_index];
 }

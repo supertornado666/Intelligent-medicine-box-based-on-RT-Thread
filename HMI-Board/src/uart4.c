@@ -8,15 +8,13 @@
  * 2025-03-15     廖钟涛       the first version
  */
 #include "uart4.h"
-#include <rtthread.h>
-#include <rtdbg.h>
-#include <rtdevice.h>
-#include "hal_data.h"
+
 #include "commands_def.h"
 #include "standby_timer.h"
 #include "string.h"
 #include "event.h"
 
+#include <rtdbg.h>
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
@@ -25,7 +23,7 @@ static struct rt_semaphore u4_sem;
 static rt_thread_t u4_th;
 static rt_size_t rx_len = 0;
 
-char u4_buf[16] = {0};
+rt_uint8_t u4_buf[16] = {0};
 extern rt_bool_t speech_thread_running;
 extern struct rt_semaphore voice_sem;
 //extern struct rt_semaphore read_sem, show_sem;
@@ -96,28 +94,28 @@ static void serial_thread_entry(void *parameter){
     }
 }
 
-int uart4_init(void){
+rt_uint8_t uart4_init(void){
     static rt_err_t ret = 0;
     static const struct serial_configure u4_configs = RT_SERIAL_CONFIG_DEFAULT;
 
     u4_dev = rt_device_find("uart4");
     if (u4_dev == RT_NULL){
         LOG_E("rt_device_find[uart4] failed...\n");
-        return -1;
+        return -RT_ERROR;
     }
 
     ret = rt_device_open(u4_dev, RT_DEVICE_FLAG_DMA_RX);
     if (ret < 0){
         LOG_E("rt_device_open[uart4] failed...\n");
-        return -2;
+        return -RT_ERROR;
     }
 
     rt_device_control(u4_dev, RT_DEVICE_CTRL_CONFIG, (void *)&u4_configs);
     rt_device_set_rx_indicate(u4_dev, rx_callback);
     rt_sem_init(&u4_sem, "rx_sem", 0, RT_IPC_FLAG_FIFO);
-    u4_th = rt_thread_create("u4_recv", serial_thread_entry, NULL, 1536, 22, 10);
+    u4_th = rt_thread_create("u4_recv", serial_thread_entry, RT_NULL, 1536, 22, 10);
     rt_thread_startup(u4_th);
 
-    return 0;
+    return RT_EOK;
 }
 //INIT_APP_EXPORT(uart4_init);

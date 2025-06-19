@@ -10,10 +10,12 @@
 #ifndef SRC_CAN_TEST_H_
 #define SRC_CAN_H_
 
-#include <rtdef.h>
+#include <rtthread.h>
+#include "hal_data.h"
+#include <rtdevice.h>
 
-extern char command[9];
+extern rt_uint8_t command[9];
 
-int can_send(rt_uint8_t *p_buff, rt_uint32_t len);
+rt_uint8_t can_send(rt_uint8_t *p_buff, rt_uint32_t len);
 
 #endif /* SRC_CAN_TEST_H_ */

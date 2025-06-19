@@ -8,14 +8,11 @@
  * 2025-03-15     廖钟涛       the first version
  */
 #include "uart1.h"
-#include <rtthread.h>
-#include <rtdbg.h>
-#include <rtdevice.h>
-#include "hal_data.h"
 
 #include "standby_timer.h"
 #include "event.h"
 
+#include <rtdbg.h>
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
@@ -24,10 +21,10 @@ static struct rt_semaphore u1_sem;
 static rt_thread_t u1_th;
 static rt_size_t rx1_len = 0;
 
-char u1_buf[500] = {0};
-extern char m_buf[500];
+rt_uint8_t u1_buf[500] = {0};
+extern rt_uint8_t m_buf[500];
 
-volatile rt_bool_t uart_send_complete_flag = false;
+volatile rt_bool_t uart_send_complete_flag = RT_FALSE;
 
 static rt_err_t rx1_callback(rt_device_t dev, rt_size_t size){
 //void user_uart1_callback(uart_callback_args_t *p_args){
@@ -63,20 +60,20 @@ static void serial1_thread_entry(void *parameter){
     }
 }
 
-int uart1_init(void){
+rt_uint8_t uart1_init(void){
     static rt_err_t ret = 0;
     static const struct serial_configure u1_configs = RT_SERIAL_CONFIG_DEFAULT;
 
     u1_dev = rt_device_find("uart1");
     if (u1_dev == RT_NULL){
         LOG_E("rt_device_find[uart1] failed...\n");
-        return -1;
+        return -RT_ERROR;
     }
 
     ret = rt_device_open(u1_dev, RT_DEVICE_FLAG_DMA_RX);
     if (ret < 0){
         LOG_E("rt_device_open[uart1] failed...\n");
-        return -2;
+        return -RT_ERROR;
     }
 
     rt_device_control(u1_dev, RT_DEVICE_CTRL_CONFIG, (void *)&u1_configs);
@@ -85,10 +82,10 @@ int uart1_init(void){
 //    R_SCI_UART_Open(&g_uart1_cfg, &g_uart1_ctrl);
 
     rt_sem_init(&u1_sem, "rx1_sem", 0, RT_IPC_FLAG_FIFO);
-    u1_th = rt_thread_create("u1_recv", serial1_thread_entry, NULL, 1536, 22, 10);
+    u1_th = rt_thread_create("u1_recv", serial1_thread_entry, RT_NULL, 1536, 22, 10);
     rt_thread_startup(u1_th);
 
-    return 0;
+    return RT_EOK;
 }
 //INIT_APP_EXPORT(uart4_init);
 

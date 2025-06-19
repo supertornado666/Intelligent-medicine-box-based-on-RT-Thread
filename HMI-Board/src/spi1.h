@@ -11,9 +11,11 @@
 #define SRC_SPI1_H_
 
 #include <rtthread.h>
+#include <rtdevice.h>
+#include "hal_data.h"
 
 #define SPI_CS_PIN  BSP_IO_PORT_05_PIN_06
 
-int spi1_init(void);
+rt_uint8_t spi1_init(void);
 
 #endif /* SRC_SPI1_H_ */
