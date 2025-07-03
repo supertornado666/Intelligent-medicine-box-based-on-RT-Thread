@@ -16,7 +16,10 @@
 
 #define GET_TIME				"L"//获取时间，显示在面板上（定时获取，如1小时）
 #define GET_TEMP_HUMI			"O"//获取温湿度，显示在面板上（定时获取，如1分钟）
-#define FORCE_LOCK              "Z"
+#define FORCE_LOCK              "Z"//强制上锁
+#define FORCE_UNLOCK            "AB"//强制解锁
+#define DISABLE_ALARM           "AC"//取消用药提醒
+#define ENABLE_ALARM            "AD"//打开用药提醒
 
 //语音交互内容
 #define MEDICINE_GET_INFO		"C"//获取当前药物信息，以发送至DeepSeek分析

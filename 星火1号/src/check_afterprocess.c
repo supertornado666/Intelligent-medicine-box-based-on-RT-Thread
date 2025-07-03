@@ -30,13 +30,12 @@ static void after_process_thread(void *parameter){
               RT_WAITING_FOREVER,
               NULL);
 
-       if(rt_pin_read(FINGER_PIN) == PIN_HIGH)
-       {
+
         rt_event_send(medication_event, EVENT_BOX_CLOSED);
         after_th = RT_NULL;
         return;
-       }
-       rt_thread_mdelay(100);
+
+
     }
 }
 

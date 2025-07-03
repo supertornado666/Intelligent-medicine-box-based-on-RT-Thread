@@ -34,6 +34,7 @@ extern lv_obj_t * ui____initial_actions0;
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_background_png);    // assets/background.png
 LV_IMG_DECLARE(ui_img_lock_png);    // assets/lock.png
+LV_IMG_DECLARE(ui_img_unlock_png);    // assets/unlock.png
 LV_IMG_DECLARE(ui_img_settings_png);    // assets/settings.png
 LV_IMG_DECLARE(ui_img_medicine_png);    // assets/medicine.png
 LV_IMG_DECLARE(ui_img_smile_png);    // assets/smile.png

@@ -22,7 +22,8 @@
 #include "mqtt.h"
 #include "medication_management.h"
 #include "check_take_medicine.h"
-
+#include "pwm.h"
+#include "led.h"
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 
@@ -34,6 +35,8 @@ char freq[4];
 static int num1, num2;
 static bool pill_out_flag = false;
 bool finger_flag = false;
+rt_bool_t alarm_flag = RT_TRUE;
+rt_uint32_t timeout = 60000;
 
 char result[500] = ""; // 初始化空字符串
 
@@ -124,6 +127,11 @@ static void can_rx_thread(void *parameter)
         /* 从 CAN 读取一帧数据 */
         rt_device_read(can_dev, 0, &rxmsg, sizeof(rxmsg));
         sprintf(command, "%.*s", rxmsg.len, rxmsg.data);
+        if (strcmp(command, FORCE_LOCK) == 0)
+        {
+            led_off_all();
+            lock_close();
+        }
 
         if (strcmp(command, IDENTITY_UNBIND) == 0){
             if (Med_Zw101_DeleteFinger(1)){
@@ -180,7 +188,7 @@ static void can_rx_thread(void *parameter)
             else if (strcmp(command, MEDICINE_GET_INFO) == 0){
                 rt_kprintf("get info\n");
                 int count=0;
-                MedicineDisplayInfo *info = get_medicine_info(&count);
+                Medicine *info = get_medicine_info(&count);
 
                 for (int i = 0; i < count; i++) {
                     char temp[100] = {0}; // 临时存储单条记录
@@ -195,6 +203,28 @@ static void can_rx_thread(void *parameter)
                 //spi1_write(result,400);
                 rt_device_write(u4_dev, 0, result, strlen(result));
                 result[0] = '\0';
+            }
+            else if (strcmp(command, FORCE_LOCK) == 0){
+                lock_close();
+                led_off_all();
+            }
+            else if (strcmp(command, FORCE_UNLOCK) == 0){
+                lock_open();
+            }
+            else if (strcmp(command, ENABLE_ALARM) == 0){
+                alarm_flag = RT_TRUE;
+            }
+            else if (strcmp(command, DISABLE_ALARM) == 0){
+                alarm_flag = RT_FALSE;
+            }
+            if (rt_strncmp(command, "tout:", 5) == 0){
+                timeout = atoi(&command[5]);
+                if (timeout == 0) {
+                    timeout = -1;
+                }
+                else {
+                    timeout *= 60000;
+                }
             }
         }
         command[0] = '\0';

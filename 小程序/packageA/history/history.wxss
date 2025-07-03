@@ -1,0 +1,38 @@
+/* packageA/history/history.wxss */
+.intro_title{
+  margin-top: 100rpx;
+}
+.clear-btn{
+    border-radius: 50rpx;
+    font-size: 20rpx;
+    padding: 16rpx 40rpx ;
+}
+.log-container {
+  padding: 32rpx;
+}
+
+.log-item {
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.log-text {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.log-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.empty {
+  font-size: 28rpx;
+  text-align: center;
+  color: #aaa;
+  margin-top: 100rpx;
+}

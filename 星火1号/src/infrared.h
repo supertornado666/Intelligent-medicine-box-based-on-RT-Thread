@@ -14,4 +14,6 @@
 void INFRA_Init(void);
 int INFRA_Read(int num, ...);
 void wait_for_medicine_pickup(matched_medicine *list,int count);
+void text();
+
 #endif /* APPLICATIONS_INFRARED_H_ */

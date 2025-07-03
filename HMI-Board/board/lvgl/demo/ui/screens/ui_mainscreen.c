@@ -15,6 +15,7 @@ lv_obj_t * ui_medicineintext = NULL;
 lv_obj_t * ui_medicineoutbutton = NULL;
 lv_obj_t * ui_medicineouttext = NULL;
 lv_obj_t * ui_lockbutton = NULL;
+lv_obj_t * ui_unlockbutton = NULL;
 lv_obj_t * ui_setbutton = NULL;
 lv_obj_t * ui_time = NULL;
 lv_obj_t * ui_fingertext = NULL;
@@ -83,6 +84,19 @@ void ui_event_lockbutton(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         force_lock(e);
+        _ui_flag_modify(ui_lockbutton, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
+        _ui_flag_modify(ui_unlockbutton, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
+    }
+}
+
+void ui_event_unlockbutton(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        force_unlock(e);
+        _ui_flag_modify(ui_unlockbutton, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
+        _ui_flag_modify(ui_lockbutton, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
     }
 }
 
@@ -243,8 +257,18 @@ void ui_mainscreen_screen_init(void)
     lv_obj_set_x(ui_lockbutton, -200);
     lv_obj_set_y(ui_lockbutton, 30);
     lv_obj_set_align(ui_lockbutton, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_lockbutton, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_blend_mode(ui_lockbutton, LV_BLEND_MODE_MULTIPLY, LV_PART_MAIN | LV_STATE_PRESSED);
     lv_obj_set_style_opa(ui_lockbutton, 255, LV_PART_MAIN | LV_STATE_PRESSED);
+
+    ui_unlockbutton = lv_imgbtn_create(ui_mainscreen);
+    lv_imgbtn_set_src(ui_unlockbutton, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_unlock_png, NULL);
+    lv_imgbtn_set_src(ui_unlockbutton, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_unlock_png, NULL);
+    lv_obj_set_width(ui_unlockbutton, 50);
+    lv_obj_set_height(ui_unlockbutton, 50);
+    lv_obj_set_x(ui_unlockbutton, -200);
+    lv_obj_set_y(ui_unlockbutton, 30);
+    lv_obj_set_align(ui_unlockbutton, LV_ALIGN_CENTER);
 
     ui_setbutton = lv_imgbtn_create(ui_mainscreen);
     lv_imgbtn_set_src(ui_setbutton, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_settings_png, NULL);
@@ -319,6 +343,7 @@ void ui_mainscreen_screen_init(void)
     lv_obj_add_event_cb(ui_medicineinbutton, ui_event_medicineinbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_medicineoutbutton, ui_event_medicineoutbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_lockbutton, ui_event_lockbutton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_unlockbutton, ui_event_unlockbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_setbutton, ui_event_setbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_mainscreen, ui_event_mainscreen, LV_EVENT_ALL, NULL);
 
@@ -339,6 +364,7 @@ void ui_mainscreen_screen_destroy(void)
     ui_medicineoutbutton = NULL;
     ui_medicineouttext = NULL;
     ui_lockbutton = NULL;
+    ui_unlockbutton = NULL;
     ui_setbutton = NULL;
     ui_time = NULL;
     ui_fingertext = NULL;

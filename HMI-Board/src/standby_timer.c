@@ -17,8 +17,8 @@ static rt_timer_t tm1;
 static rt_uint32_t current_time;
 // 全局变量，记录触摸操作的时间
 rt_uint32_t last_touch_time = 0;
-rt_uint16_t light_volume;
-rt_uint32_t light_time;
+rt_uint16_t light_volume = 5000;
+rt_uint32_t light_time = 60000;
 
 static void backlight_off(void) {
     R_GPT_DutyCycleSet(&g_timer5_ctrl, 0, GPT_IO_PIN_GTIOCB);

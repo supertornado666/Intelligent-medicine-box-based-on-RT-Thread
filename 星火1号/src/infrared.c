@@ -13,6 +13,8 @@
 #include <board.h>
 #include <stdarg.h>
 #include "medication_management.h"
+#include "can.h"
+#include "commands_def.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -27,10 +29,14 @@
 #define INFRA_GRID_5_PIN  GET_PIN(G, 0)
 /******根据星火一号实际修改******/
 
+
 typedef struct {
     rt_base_t pin;
     rt_uint32_t bit;  // 对应事件位
 } monitored_pin_t;
+
+static rt_thread_t err_th;
+static struct rt_semaphore err_sem;
 
 // 假设你预先配置的最多8个可用引脚（可根据硬件修改）
 static monitored_pin_t all_pins[5] = {
@@ -44,28 +50,44 @@ static monitored_pin_t all_pins[5] = {
 static struct rt_event infra_event;
 
 static rt_uint32_t target = 0;
+
+static void err_thread_entry(void *parameter){
+    while (1){
+        rt_sem_take(&err_sem, RT_WAITING_FOREVER);
+
+        if (target == 0){
+            rt_sem_detach(&err_sem);
+            err_th = RT_NULL;
+            break;
+        }
+
+        can_send(MEDICINE_TAKE_WRONG, 1);
+    }
+}
+
 void gpio_irq_callback(void *args)
 {
     rt_base_t pin = (rt_base_t)args;
+    rt_base_t level = rt_hw_interrupt_disable();  // 🔒 关闭中断
 
     for (int i = 0; i < 5; i++) {
         if (all_pins[i].pin == pin) {
             if (rt_pin_read(pin) == PIN_HIGH) {
                 if (target & all_pins[i].bit) {
-
                     rt_kprintf("find hand on GRID[%d]\n", i + 1);
-                    rt_event_send(&infra_event, all_pins[i].bit);
-                }
-                else {
-                    // ❗️未授权的引脚也变高了，报警
+                    rt_event_send(&infra_event, all_pins[i].bit);  // ✅ 非阻塞，安全
+                } else {
                     rt_kprintf("[ALERT] Unexpected high level on GRID[%d]\n", i + 1);
+                   // can_send(MEDICINE_TAKE_WRONG, 1);  // ⚠️ 确保 can_send 不会阻塞！
+                    rt_sem_release(&err_sem);
                 }
             }
             break;
         }
     }
-}
 
+    rt_hw_interrupt_enable(level);  // 🔓 恢复中断
+}
 
 void INFRA_Init(void){
     rt_pin_mode(INFRA_GRID_1_PIN, PIN_MODE_INPUT_PULLDOWN);
@@ -93,6 +115,10 @@ int INFRA_Read(int num, ...){
 
     rt_event_init(&infra_event, "infra_evt", RT_IPC_FLAG_PRIO);
 
+    rt_sem_init(&err_sem, "err_sem", 0, RT_IPC_FLAG_FIFO);
+    err_th = rt_thread_create("err_th", err_thread_entry, RT_NULL, 1024, 10, 5);
+    rt_thread_startup(err_th);
+
     for (int i = 0; i < 5; i++) {
         rt_pin_attach_irq(all_pins[i].pin, PIN_IRQ_MODE_RISING, gpio_irq_callback, (void *)all_pins[i].pin);
         rt_pin_irq_enable(all_pins[i].pin, PIN_IRQ_ENABLE);
@@ -104,15 +130,17 @@ int INFRA_Read(int num, ...){
                   RT_WAITING_FOREVER,
                   NULL);
     target = 0;
+    rt_sem_release(&err_sem);
 
     for (int i = 0; i < 5; i++) {
-        rt_pin_detach_irq(all_pins[i].pin);
+      rt_pin_detach_irq(all_pins[i].pin);
     }
 
     rt_event_detach(&infra_event);
 
     return 0;
 }
+
 void wait_for_medicine_pickup(matched_medicine *list,int count)
 {
     // 把所有格子的编号打包传给INFRA_Read

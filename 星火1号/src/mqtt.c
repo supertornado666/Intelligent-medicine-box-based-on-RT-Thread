@@ -61,8 +61,70 @@ static void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_even
                 EXAMPLE_TRACE("json parse error");
                 return;
             }
-            cJSON *cmd = cJSON_GetObjectItem(root, "AlarmSwitch");
-            if (cmd == NULL) {
+
+            cJSON *cmd = RT_NULL;
+            if ((cmd = cJSON_GetObjectItem(root, "AlarmSwitch"))){
+                if (cmd->valueint == 1) rt_kprintf("AlarmOn\n");
+                else if (cmd->valueint == 0) rt_kprintf("AlarmOff\n");
+            }
+
+            cmd = cJSON_GetObjectItem(root, "cmd");
+            if (cmd && !rt_strcmp(cJSON_GetStringValue(cmd), "DeleteMedicineInfo")) {
+                cJSON *data = cJSON_GetObjectItem(root, "data");
+                if (data) {
+                    cJSON *num_item = cJSON_GetObjectItem(data, "number");
+                    if (num_item && cJSON_IsNumber(num_item)) {
+                        del_medicine(num_item->valueint);
+                    }
+                }
+            }
+            else if (cmd && !rt_strcmp(cJSON_GetStringValue(cmd), "RequestMedicineInfo")){
+                int count = 0;
+                Medicine* med_list = get_medicine_info(&count);//medicine  类型
+                for (int i = 0; i < count; i++){
+                   // medicine_mqtt_add(med_list[i]);
+                    rt_thread_mdelay(100);
+                }
+            }
+            else if (cmd && !rt_strcmp(cJSON_GetStringValue(cmd), "SyncMedicineInfo")){
+                cJSON *data = cJSON_GetObjectItem(root, "data");
+                Medicine *new_info = (Medicine *)rt_calloc(1, sizeof(Medicine));
+                if (!new_info) {
+                    rt_kprintf("Memory allocation failed!\n");
+                    cJSON_Delete(root);
+                    return;
+                }
+                if (data) {
+                    cJSON *name_item = cJSON_GetObjectItem(data, "name");
+                    cJSON *taketime_item = cJSON_GetObjectItem(data, "take_time");
+                    cJSON *amount_item = cJSON_GetObjectItem(data, "amount");
+                    cJSON *times_item = cJSON_GetObjectItem(data, "taken_times");
+                    cJSON *num_item = cJSON_GetObjectItem(data, "number");
+
+                    if (name_item && cJSON_IsString(name_item)) {
+                        rt_strcpy(new_info->name, name_item->valuestring);
+                    }
+
+                    if (taketime_item && cJSON_IsArray(taketime_item)) {
+                        int count = cJSON_GetArraySize(taketime_item);
+                        for (int i = 0; i < count && i < 5; i++) {
+                            cJSON *item = cJSON_GetArrayItem(taketime_item, i);
+                            if (item && cJSON_IsString(item)) {
+                                rt_strcpy(new_info->take_time[i], item->valuestring);
+                            }
+                        }
+                    }
+
+                    if (amount_item && cJSON_IsNumber(amount_item))
+                        new_info->amount = amount_item->valueint;
+                    if (times_item && cJSON_IsNumber(times_item))
+                        new_info->times_per_day = times_item->valueint;
+                    if (num_item && cJSON_IsNumber(num_item))
+                        new_info->number = num_item->valueint;
+                    //update_medicine(new_info);
+                }
+            }
+            else if (cmd == NULL) {
                 EXAMPLE_TRACE("json parse error");
                 cJSON_Delete(root);
                 return;
@@ -70,8 +132,7 @@ static void example_message_arrive(void *pcontext, void *pclient, iotx_mqtt_even
             // 打印解析后的数据
             //EXAMPLE_TRACE("cmd: %s",cmd->valuestring);
 
-            if (cmd->valueint == 1) rt_kprintf("AlarmOn\n");
-            else if (cmd->valueint == 0) rt_kprintf("AlarmOff\n");
+
 //            if (strcmp(cmd->valuestring, "1") == 0) {
 //                rt_kprintf("AlarmOn\n");
 //            }
@@ -236,14 +297,14 @@ void alarm_on(void){
     HAL_Snprintf(topic, topic_len, fmt, DEMO_PRODUCT_KEY, DEMO_DEVICE_NAME);
 
     //计算payload所需长度，温度湿度数据保留一位小数上传，"params":{"CurrentTemperature":16.5,"CurrentHumidity":56.3,"LightValue":1000.0,"DetectDistance":1000.0}
-    payload_len = strlen("{\"params\":{\"AlarmSwitch\":1}}") + 5;
+    payload_len = strlen("{\"params\":{\"alarmStatus\":1}}") + 5;
     payload = HAL_Malloc(payload_len);
     if (payload == NULL) {
         EXAMPLE_TRACE("memory not enough");
         return;
     }
     memset(payload, 0, payload_len);
-    HAL_Snprintf(payload, payload_len, "{\"params\":{\"AlarmSwitch\":%d}}", 1);
+    HAL_Snprintf(payload, payload_len, "{\"params\":{\"alarmStatus\":%d}}", 1);
 
     res = IOT_MQTT_Publish_Simple(0, topic, IOTX_MQTT_QOS0, payload, strlen(payload));
     if (res < 0) {

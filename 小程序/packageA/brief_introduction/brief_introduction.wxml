@@ -1,0 +1,24 @@
+<van-icon class="intro_title" size="30px"name="arrow-left" bindtap="goBack"/>
+  <text style="font-size: 35rpx;">项目简介</text>
+  <!-- 实物照片和开发人员 -->
+        <!-- 轮播图 -->
+      <view class="left-box1">
+          <swiper class="swiper-box1"
+                  indicator-dots="true"
+                  autoplay="true"
+                  interval="2000"
+                  circular="true">
+              <swiper-item wx:for="{{pictureList}}" wx:key="idx">
+                <image src="{{item.img}}" mode="widthFix" />
+               </swiper-item>
+          </swiper>
+      </view>
+      <!-- 开发人员名单 -->
+
+
+  <view class="title">设计目的</view>
+  <view class="text_intro">★本作品旨在解决当前老年人群体在用药过程中存在的安全隐患与管理困难。随着人口老龄化加剧，老年人多病共存、记忆力减退、辨识能力下降等问题日益突出，容易造成漏服、误服、重复服药等风险，严重影响身体健康与生命安全。同时，缺乏对儿童接触药物的有效防范，也可能带来意外风险。因此，本系统通过融合智能识别、人机交互与远程管理技术，提升老人用药的规范性、便捷性与安全性，减轻家属照护压力，推动智慧健康养老的发展。
+  </view>
+
+  <view class="title">使用说明</view>
+  <view class="text_intro">★<!--输入文本--> </view>

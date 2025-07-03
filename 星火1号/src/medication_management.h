@@ -51,7 +51,7 @@ int del_medicine(int number);
 matched_medicine* find_medicine(const char *time, int *found_count);
 
 // get_medicine_info 函数原型
-MedicineDisplayInfo* get_medicine_info(int *count);
+Medicine* get_medicine_info(int *count);
 
 
 #endif /* SRC_MEDICATION_MANAGEMENT_H_ */

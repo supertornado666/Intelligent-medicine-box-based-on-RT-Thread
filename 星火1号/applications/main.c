@@ -36,10 +36,13 @@
 
 int main(void)
 {
+//    can_init();
+//    can_send(RESET_HMI, 1);
+
     wifi_connect();
 
-    rt_pin_mode(SPI_CS_PIN, PIN_MODE_OUTPUT);
-    rt_pin_write(SPI_CS_PIN, PIN_HIGH);
+    //rt_pin_mode(SPI_CS_PIN, PIN_MODE_OUTPUT);
+    //rt_pin_write(SPI_CS_PIN, PIN_HIGH);
     rt_pin_mode(SCAN_PIN, PIN_MODE_OUTPUT);
 
     rtc_init();
@@ -71,7 +74,9 @@ int main(void)
     while (1)
     {
       set_screen_time();
-      rt_thread_mdelay(15000);
+      rt_thread_mdelay(1500);
+      //text();
+
 //      spi1_write(buf, 500);
 //      rt_thread_mdelay(5000);
 //      rt_device_write(u4_dev, 0, "rubbish$", strlen("rubbish$"));

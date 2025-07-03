@@ -51,7 +51,8 @@ void hal_entry(void)
     while (f) rt_thread_mdelay(100);
     lv_bar_set_value(ui_Bar1, 100, LV_ANIM_ON);
     lv_label_set_text(ui_starttext, "欢迎使用");
-    SYN_FrameInfo("[v2]欢迎使用");
+    SYN_FrameInfo("[v2][m3]欢迎使用");
     rt_thread_mdelay(2000);
+    //lv_obj_clear_flag(ui_loginoutbutton, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_Panel2, LV_OBJ_FLAG_HIDDEN);
 }

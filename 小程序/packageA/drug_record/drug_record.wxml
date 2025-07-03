@@ -1,0 +1,4 @@
+<!--packageA/drug_record/drug_record.wxml-->
+<van-icon class="intro_title" size="30px"name="arrow-left" bindtap="goBack"/>
+  <text style="font-size: 35rpx;">服药记录</text>
+ <view>正在开发，敬请期待</view>

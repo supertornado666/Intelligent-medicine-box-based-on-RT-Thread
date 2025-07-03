@@ -17,6 +17,7 @@ void read_finger(lv_event_t * e);
 void read_bar(lv_event_t * e);
 void medicine_out(lv_event_t * e);
 void force_lock(lv_event_t * e);
+void force_unlock(lv_event_t * e);
 void m_inback(lv_event_t * e);
 void msg_send(lv_event_t * e);
 void del_medicine(lv_event_t * e);
@@ -26,6 +27,8 @@ void volume_set(lv_event_t * e);
 void person_change(lv_event_t * e);
 void light_change(lv_event_t * e);
 void light_time_change(lv_event_t * e);
+void med_timeout_switch(lv_event_t * e);
+void med_timeout_change(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

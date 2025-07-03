@@ -12,4 +12,6 @@
 void servo_pwm_init(void);
 void servo_set_angle(int angle);
 void servo_toggle(void);
+void lock_open();
+void lock_close();
 #endif /* SRC_PWM_H_ */

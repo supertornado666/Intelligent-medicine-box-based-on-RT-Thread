@@ -19,6 +19,10 @@ lv_obj_t * ui_lighttimetext = NULL;
 lv_obj_t * ui_lighttimeset = NULL;
 lv_obj_t * ui_wifibutton = NULL;
 lv_obj_t * ui_wifitext = NULL;
+lv_obj_t * ui_alarmenabletext = NULL;
+lv_obj_t * ui_alarmenableswitch = NULL;
+lv_obj_t * ui_medtimeouttext = NULL;
+lv_obj_t * ui_medtimeoutset = NULL;
 lv_obj_t * ui_settext = NULL;
 lv_obj_t * ui_setbackbutton = NULL;
 // event funtions
@@ -78,6 +82,25 @@ void ui_event_lighttimeset(lv_event_t * e)
     }
 }
 
+void ui_event_alarmenableswitch(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        med_timeout_switch(e);
+        _ui_state_modify(ui_medtimeoutset, LV_STATE_DISABLED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+
+void ui_event_medtimeoutset(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        med_timeout_change(e);
+    }
+}
+
 void ui_event_setbackbutton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -107,7 +130,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_voiceswitchtext, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_voiceswitchtext, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_voiceswitchtext, -190);
-    lv_obj_set_y(ui_voiceswitchtext, -90);
+    lv_obj_set_y(ui_voiceswitchtext, 60);
     lv_obj_set_align(ui_voiceswitchtext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_voiceswitchtext, "语音");
     lv_obj_set_style_text_font(ui_voiceswitchtext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -115,8 +138,8 @@ void ui_settingsscreen_screen_init(void)
     ui_voiceswitch = lv_switch_create(ui_Panel3);
     lv_obj_set_width(ui_voiceswitch, 50);
     lv_obj_set_height(ui_voiceswitch, 25);
-    lv_obj_set_x(ui_voiceswitch, -125);
-    lv_obj_set_y(ui_voiceswitch, -90);
+    lv_obj_set_x(ui_voiceswitch, -110);
+    lv_obj_set_y(ui_voiceswitch, 60);
     lv_obj_set_align(ui_voiceswitch, LV_ALIGN_CENTER);
     lv_obj_add_state(ui_voiceswitch, LV_STATE_CHECKED);       /// States
 
@@ -124,7 +147,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_volumetext, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_volumetext, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_volumetext, -190);
-    lv_obj_set_y(ui_volumetext, -50);
+    lv_obj_set_y(ui_volumetext, 100);
     lv_obj_set_align(ui_volumetext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_volumetext, "音量");
     lv_obj_set_style_text_font(ui_volumetext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -136,7 +159,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_volumeset, 150);
     lv_obj_set_height(ui_volumeset, 10);
     lv_obj_set_x(ui_volumeset, -66);
-    lv_obj_set_y(ui_volumeset, -50);
+    lv_obj_set_y(ui_volumeset, 100);
     lv_obj_set_align(ui_volumeset, LV_ALIGN_CENTER);
     lv_obj_set_style_bg_color(ui_volumeset, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DISABLED);
     lv_obj_set_style_bg_opa(ui_volumeset, 255, LV_PART_MAIN | LV_STATE_DISABLED);
@@ -151,7 +174,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_persontext, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_persontext, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_persontext, -190);
-    lv_obj_set_y(ui_persontext, -10);
+    lv_obj_set_y(ui_persontext, 140);
     lv_obj_set_align(ui_persontext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_persontext, "发音人");
     lv_obj_set_style_text_font(ui_persontext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -162,7 +185,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_personchoose, 150);
     lv_obj_set_height(ui_personchoose, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_personchoose, -65);
-    lv_obj_set_y(ui_personchoose, -10);
+    lv_obj_set_y(ui_personchoose, 140);
     lv_obj_set_align(ui_personchoose, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_personchoose, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_set_style_text_font(ui_personchoose, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -185,7 +208,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_lighttext, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lighttext, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lighttext, -190);
-    lv_obj_set_y(ui_lighttext, 70);
+    lv_obj_set_y(ui_lighttext, 220);
     lv_obj_set_align(ui_lighttext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_lighttext, "亮度");
     lv_obj_set_style_text_font(ui_lighttext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -197,14 +220,14 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_width(ui_lightset, 150);
     lv_obj_set_height(ui_lightset, 10);
     lv_obj_set_x(ui_lightset, -66);
-    lv_obj_set_y(ui_lightset, 70);
+    lv_obj_set_y(ui_lightset, 220);
     lv_obj_set_align(ui_lightset, LV_ALIGN_CENTER);
 
     ui_lighttimetext = lv_label_create(ui_Panel3);
     lv_obj_set_width(ui_lighttimetext, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lighttimetext, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lighttimetext, -190);
-    lv_obj_set_y(ui_lighttimetext, 150);
+    lv_obj_set_y(ui_lighttimetext, 300);
     lv_obj_set_align(ui_lighttimetext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_lighttimetext, "熄屏时间");
     lv_obj_set_style_text_font(ui_lighttimetext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -215,7 +238,7 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_height(ui_lighttimeset, 100);
     lv_obj_set_width(ui_lighttimeset, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_x(ui_lighttimeset, -80);
-    lv_obj_set_y(ui_lighttimeset, 150);
+    lv_obj_set_y(ui_lighttimeset, 300);
     lv_obj_set_align(ui_lighttimeset, LV_ALIGN_CENTER);
 
     ui_wifibutton = lv_btn_create(ui_Panel3);
@@ -233,6 +256,45 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_set_align(ui_wifitext, LV_ALIGN_CENTER);
     lv_label_set_text(ui_wifitext, "WLAN");
     lv_obj_set_style_text_font(ui_wifitext, &ui_font_big, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_alarmenabletext = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_alarmenabletext, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_alarmenabletext, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_alarmenabletext, -190);
+    lv_obj_set_y(ui_alarmenabletext, -90);
+    lv_obj_set_align(ui_alarmenabletext, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_alarmenabletext, "用药提醒");
+    lv_obj_set_style_text_font(ui_alarmenabletext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_alarmenableswitch = lv_switch_create(ui_Panel3);
+    lv_obj_set_width(ui_alarmenableswitch, 50);
+    lv_obj_set_height(ui_alarmenableswitch, 25);
+    lv_obj_set_x(ui_alarmenableswitch, -110);
+    lv_obj_set_y(ui_alarmenableswitch, -90);
+    lv_obj_set_align(ui_alarmenableswitch, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_alarmenableswitch, LV_STATE_CHECKED);       /// States
+
+    ui_medtimeouttext = lv_label_create(ui_Panel3);
+    lv_obj_set_width(ui_medtimeouttext, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_medtimeouttext, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_medtimeouttext, -190);
+    lv_obj_set_y(ui_medtimeouttext, -20);
+    lv_obj_set_align(ui_medtimeouttext, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_medtimeouttext, "用药超时\n  时间");
+    lv_obj_set_style_text_font(ui_medtimeouttext, &ui_font_small, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_medtimeoutset = lv_roller_create(ui_Panel3);
+    lv_roller_set_options(ui_medtimeoutset, "1min\n15min\n30min\n60min\nnever", LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_height(ui_medtimeoutset, 100);
+    lv_obj_set_width(ui_medtimeoutset, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_x(ui_medtimeoutset, -80);
+    lv_obj_set_y(ui_medtimeoutset, -20);
+    lv_obj_set_align(ui_medtimeoutset, LV_ALIGN_CENTER);
+    lv_obj_set_style_bg_color(ui_medtimeoutset, lv_color_hex(0xB1B1B1), LV_PART_MAIN | LV_STATE_DISABLED);
+    lv_obj_set_style_bg_opa(ui_medtimeoutset, 255, LV_PART_MAIN | LV_STATE_DISABLED);
+
+    lv_obj_set_style_bg_color(ui_medtimeoutset, lv_color_hex(0xB1B1B1), LV_PART_SELECTED | LV_STATE_DISABLED);
+    lv_obj_set_style_bg_opa(ui_medtimeoutset, 255, LV_PART_SELECTED | LV_STATE_DISABLED);
 
     ui_settext = lv_label_create(ui_settingsscreen);
     lv_obj_set_width(ui_settext, LV_SIZE_CONTENT);   /// 1
@@ -259,6 +321,8 @@ void ui_settingsscreen_screen_init(void)
     lv_obj_add_event_cb(ui_personchoose, ui_event_personchoose, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_lightset, ui_event_lightset, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_lighttimeset, ui_event_lighttimeset, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_alarmenableswitch, ui_event_alarmenableswitch, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_medtimeoutset, ui_event_medtimeoutset, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_setbackbutton, ui_event_setbackbutton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_settingsscreen, ui_event_settingsscreen, LV_EVENT_ALL, NULL);
 
@@ -283,6 +347,10 @@ void ui_settingsscreen_screen_destroy(void)
     ui_lighttimeset = NULL;
     ui_wifibutton = NULL;
     ui_wifitext = NULL;
+    ui_alarmenabletext = NULL;
+    ui_alarmenableswitch = NULL;
+    ui_medtimeouttext = NULL;
+    ui_medtimeoutset = NULL;
     ui_settext = NULL;
     ui_setbackbutton = NULL;
 

@@ -1,0 +1,59 @@
+<!--pages/drug_inquiry/drug_inquiry.wxml-->
+<!--总标题-->
+<view class="intro_title">
+  <van-icon  size="30px" name="arrow-left"  bindtap="goBack"/>
+  <text style="font-size: 35rpx;">药物查询</text>
+</view>
+
+<!--搜索框-->
+<view>
+      <van-search value="{{ search_value }}"placeholder="请输入药品名称" show-action bind:search="onSearch" bind:cancel="onCancel"/>
+</view>
+
+<!--手动添加按钮-->
+<view >
+  <van-button plain type="primary"class="add-medicine-btn" icon=""  size="small" bindtap="onAddCard">
+    手动添加
+  </van-button>
+</view>
+
+<!--药物消息卡片-->
+<view class="medicine-card-system">
+  <block wx:for="{{medicineSearch}}" wx:key="name">
+    <view class="medicine-card-info">
+        <view class="medicine-name">
+          <view>药名：{{item.name}}</view>
+          <view> 服药时间：
+                  <block wx:for="{{item.take_time}}" wx:for-item="time" wx:key="time">
+                    {{time}}{{index < item.take_time.length - 1 ? ',' : ''}}
+                  </block>
+          </view>
+          <view>每次服用剂量：{{item.amount}}</view>
+          <view>已服用次数：{{item.taken_times}}</view>
+          <view>放入的格子编号：{{item.number}}</view>
+        </view>
+      <view class="card-buttons">
+        <button data-index="{{index}}" size="mini" type="default"bindtap="editCard">修改</button>
+        <button data-index="{{index}}" size="mini" type="warn" bindtap="deleteCard">删除</button>
+      </view>
+    </view>
+  </block>
+</view>
+
+<!--修改药品数据弹出层-->
+<van-popup show="{{ showEditDialog }}" position="bottom" round custom-style="height: 65%;" bind:close="onEditCancel">
+  <view class="edit-popup-content">
+    <text class="edit-popup-title">药品信息更改</text>
+    <van-cell-group>
+      <van-field label="药品名称" model:value="{{editData.name}}" placeholder="请输入药品名称" data-field="name" bind:change="onInputChange" />
+      <van-field label="服药时间" model:value="{{editData.take_timeStr}}" placeholder="例如 9:00 15:00" data-field="take_timeStr" bind:change="onInputChange" />
+      <van-field label="单次剂量" type="digit" model:value="{{editData.amount}}" placeholder="例如 1" data-field="amount" bind:change="onInputChange" />
+      <van-field label="已服用次数" type="digit" model:value="{{editData.taken_times}}" placeholder="例如 2" data-field="taken_times" bind:change="onInputChange" />
+      <van-field label="格子编号" type="digit" model:value="{{editData.number}}" placeholder="例如 5" data-field="number" bind:change="onInputChange" />
+    </van-cell-group>
+    <view class="dialog-actions">
+      <van-button type="default" size="small" bind:tap="onEditCancel">取消</van-button>
+      <van-button type="primary" size="small" bind:tap="onEditConfirm">确认</van-button>
+    </view>
+  </view>
+</van-popup>

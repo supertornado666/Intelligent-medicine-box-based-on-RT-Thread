@@ -25,6 +25,8 @@
 
 static struct rt_semaphore alarm_sem;
 static rt_thread_t alarm_th;
+extern rt_bool_t alarm_flag;
+extern rt_uint32_t timeout;
 
 #define MAX_ALARMS 30
 
@@ -57,8 +59,8 @@ static void alarm_thread_entry(void *parameter){
 
         int count;
         find_medicine(str, &count);
-        if (count == 0)
-        continue;
+        if (count == 0 || !alarm_flag)
+            continue;
         can_send(MEDICINE_TIME_ON, 1);
 
         //所有子线程接收单独事件时不加RT_EVENT_FLAG_CLEAR
@@ -69,6 +71,7 @@ static void alarm_thread_entry(void *parameter){
         //要传入待服用药物信息
         take_medicine_start(str);
 
+
         //rt_kprintf("lock_on\n");
         //在某线程中接收事件EVENT_TAKE_MEDICINE_END，然后检查盒子是否盖上，盖上后发送事件EVENT_BOX_CLOSED
         after_process();
@@ -76,13 +79,15 @@ static void alarm_thread_entry(void *parameter){
         int result=rt_event_recv(medication_event,
                               EVENT_BOX_CLOSED,
                               RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
-                              60 * RT_TICK_PER_SECOND,  // 或者设置超时
+                              timeout,  // 或者设置超时
                               NULL);
-         led_off_all();
+             led_off_all();
         //接下来传给屏幕
-         rt_kprintf("take_finish\n");
-         servo_toggle();
-        if (result == -RT_ETIMEOUT){
+             rt_kprintf("close\n");
+             can_send(MEDICINE_TAKE_END, 1);
+             lock_close();
+
+            if (result == -RT_ETIMEOUT){
             //删除前面所有线程
             if (id_th != RT_NULL) rt_thread_delete(id_th);
             if (m_take_th != RT_NULL) rt_thread_delete(m_take_th);
@@ -96,7 +101,6 @@ static void alarm_thread_entry(void *parameter){
             //超时报警
             led_off_all();
             can_send(MEDICINE_TIME_TIMEOUT, 1);
-
             alarm_on();
         }
         //身份验证成功，取药完毕，盖子合上，上锁
@@ -137,7 +141,7 @@ int rtc_init()
     }
 
     /* 设置时间 */
-    ret = set_time(7, 57, 45);
+    ret = set_time(7, 59, 00);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC time failed\n");

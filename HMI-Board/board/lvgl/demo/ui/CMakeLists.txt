@@ -9,6 +9,7 @@ SET(SOURCES screens/ui_mainscreen.c
     ui_events.c
     images/ui_img_background_png.c
     images/ui_img_lock_png.c
+    images/ui_img_unlock_png.c
     images/ui_img_settings_png.c
     images/ui_img_medicine_png.c
     images/ui_img_smile_png.c

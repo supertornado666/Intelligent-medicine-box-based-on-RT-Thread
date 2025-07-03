@@ -29,6 +29,8 @@ extern lv_obj_t * ui_medicineoutbutton;
 extern lv_obj_t * ui_medicineouttext;
 extern void ui_event_lockbutton(lv_event_t * e);
 extern lv_obj_t * ui_lockbutton;
+extern void ui_event_unlockbutton(lv_event_t * e);
+extern lv_obj_t * ui_unlockbutton;
 extern void ui_event_setbutton(lv_event_t * e);
 extern lv_obj_t * ui_setbutton;
 extern lv_obj_t * ui_time;

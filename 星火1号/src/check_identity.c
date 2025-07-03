@@ -18,6 +18,7 @@
 #define DBG_TAG "main"
 #define DBG_LVL         DBG_LOG
 #include <rtdbg.h>
+#include <pwm.h>
 
 rt_thread_t id_th;
 
@@ -25,7 +26,7 @@ int num;
 static void check_identity_thread(void *parameter){
     while (1){
         if (Med_Zw101_IdentifyFinger()){
-
+            lock_open();
         rt_event_send(medication_event, EVENT_CHECK_IDENTITY);
         break;
         }

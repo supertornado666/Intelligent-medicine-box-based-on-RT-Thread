@@ -16,6 +16,7 @@
 #include "rtc.h"
 #include "led.h"
 #include "check_take_medicine.h"
+#include "zw101.h"
 // 最大支持药品数量
 #define MAX_MEDICINE 5
 static int alarm_set[10]={0};
@@ -82,20 +83,16 @@ int add_medicine(const char *bar_code, int times_per_day, int amount)
     m->amount = amount;
     medicine_count++;
     m->number =medicine_count;
-    //led_on_st(medicine_count);
+    led_on_st(medicine_count);
     rt_kprintf("add to  %d",medicine_count);
-    //servo_set_angle(0);
+
     // 设置默认时间
     for (int i = 0; i < times_per_day; i++) {
         snprintf(m->take_time[i], sizeof(m->take_time[i]), "%s", default_time[times_per_day-1][i]);
         alarm_add(m->take_time[i]);
     }
     medicine_mqtt_add(*m);
-    //if(rt_pin_read(FINGER_PIN) == PIN_HIGH)
-    //{
-     //   led_off_all();
-      //  servo_set_angle(0);
-    //}
+    lock_open();
     return 0;
 }
 
@@ -179,12 +176,23 @@ matched_medicine* find_medicine(const char *time, int *found_count)
 * 入口参数： count: 输出药物总数
 * 出口参数： 指向静态数组的指针，无需 free()
 ***********************************************************/
-MedicineDisplayInfo* get_medicine_info(int *count)
+Medicine* get_medicine_info(int *count)
 {
-    static MedicineDisplayInfo list[MAX_MEDICINE];
+    static Medicine list[MAX_MEDICINE];
 
-    for (int i = 0; i <medicine_count; i++) {
+    for (int i = 0; i < medicine_count; i++) {
+        // 拷贝条码
+        snprintf(list[i].bar_code, sizeof(list[i].bar_code), "%s", medicine_list[i].bar_code);
+
+        // 拷贝名称
         snprintf(list[i].name, sizeof(list[i].name), "%s", medicine_list[i].name);
+
+        // 拷贝时间数组（一次最多 5 个）
+        for (int j = 0; j < 5; j++) {
+            snprintf(list[i].take_time[j], sizeof(list[i].take_time[j]), "%s", medicine_list[i].take_time[j]);
+        }
+
+        // 拷贝其余字段
         list[i].times_per_day = medicine_list[i].times_per_day;
         list[i].amount = medicine_list[i].amount;
         list[i].number = medicine_list[i].number;

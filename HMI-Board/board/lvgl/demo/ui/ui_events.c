@@ -58,6 +58,14 @@ const rt_uint32_t time_values[] = {
     0     // never
 };
 
+const rt_uint16_t timeout_values[] = {
+    1,
+    15,
+    30,
+    60,  // 5min
+    0     // never
+};
+
 extern llm_shared_data_t llm_answer;
 extern rt_uint8_t msg[512];
 //extern struct rt_semaphore call_deepseek_sem;
@@ -347,12 +355,6 @@ void m_outback(lv_event_t * e)
     can_send(MEDICINE_OUT_END, 1);
 }
 
-void force_lock(lv_event_t * e)
-{
-	// Your code here
-    can_send(FORCE_LOCK, 1);
-}
-
 void voiceset_change(lv_event_t * e)
 {
 	// Your code here
@@ -398,4 +400,37 @@ void light_time_change(lv_event_t * e)
 	// Your code here
     rt_uint8_t selected_index = lv_roller_get_selected(ui_lighttimeset);
     light_time = time_values[selected_index];
+}
+
+void force_lock(lv_event_t * e)
+{
+    // Your code here
+    can_send(FORCE_LOCK, 1);
+}
+
+void force_unlock(lv_event_t * e)
+{
+	// Your code here
+    can_send(FORCE_UNLOCK, 2);
+}
+
+void med_timeout_switch(lv_event_t * e)
+{
+	// Your code here
+    if (lv_obj_has_state(ui_alarmenableswitch, LV_STATE_CHECKED)){
+        can_send(ENABLE_ALARM, 2);
+    }
+    else{
+        can_send(DISABLE_ALARM, 2);
+    }
+}
+
+void med_timeout_change(lv_event_t * e)
+{
+	// Your code here
+    rt_uint8_t selected_index = lv_roller_get_selected(ui_medtimeoutset);
+    rt_uint16_t timeout = timeout_values[selected_index];
+    rt_uint8_t buf[9];
+    sprintf(buf, "tout:%d", timeout);
+    can_send(buf, 8);
 }

@@ -1,0 +1,10 @@
+<!--pages/login/login.wxml-->
+
+<view >
+    <view class="login-container">
+        <view class="login-title">智能药箱小程序登录</view>
+        <input class="login-input" placeholder="请输入账号" bindinput="onInputUsername" />
+        <input class="login-input" placeholder="请输入密码" password bindinput="onInputPassword" />
+        <button class="login-button" bindtap="onLogin">登录</button>
+    </view>
+</view>

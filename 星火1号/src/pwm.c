@@ -59,4 +59,11 @@ void servo_toggle(void)//每次调用都使角度在180到0之间反转
     servo_set_angle(current_angle);
 
 }
-
+void lock_open()
+{
+    servo_set_angle(0);
+}
+void lock_close()
+{
+    servo_set_angle(180);
+}

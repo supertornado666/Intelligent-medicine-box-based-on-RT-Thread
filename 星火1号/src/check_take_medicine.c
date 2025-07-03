@@ -31,7 +31,6 @@ char can_send_list[5][8] = {
 };
 static void take_medicine_thread(void *parameter){
     char *str = (char *)parameter;
-
     while (1){
         rt_event_recv(medication_event,
                               EVENT_CHECK_IDENTITY,
@@ -54,19 +53,18 @@ static void take_medicine_thread(void *parameter){
                     led_on_st(m_list[i].number);
 
                    }//到时打印药物信息到屏幕，mqtt
-        for (int i = 0; i < count; i++) {
-            can_send(can_send_list[i], 8);
+     for (int i = 0; i < count; i++) {
+           can_send(can_send_list[i], 8);
             rt_thread_mdelay(100);
         }
         can_send("mote", 4);
-
         servo_toggle();//身份验证成功，开锁
-        wait_for_medicine_pickup(m_list,count);
+        wait_for_medicine_pickup(m_list, count);
         for(int i=0;i<count;i++)
-        {
-            have_take[m_list[i].number - 1]++;
-        }
-        rt_event_send(medication_event, EVENT_TAKE_MEDICINE_END);
+                    {
+                        have_take[m_list[i].number - 1]++;
+                    }
+                    rt_event_send(medication_event, EVENT_TAKE_MEDICINE_END);
 
         m_take_th = RT_NULL;
         return;

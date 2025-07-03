@@ -1,0 +1,169 @@
+<!--index.wxml-->
+<view class='container'>
+      <!--头部UI-->
+        <view class='head_box'>
+            <image src="/images/logo.png" node=""></image>
+            <view>{{title}}</view>
+        </view>
+      <!-- MQTT连接 -->
+        <view class="mqtt_box" bind:tap="openDialog">
+          <view>
+            <van-icon wx:if="{{mqttConnectDialog}}" name="arrow-down" />
+            <van-icon wx:if="{{!mqttConnectDialog}}" name="arrow-up" />
+            MQTT服务器
+          </view>
+          <view style="color:{{isMQTTSeverConnect?'rgb(19, 218, 45)':'rgb(192,0,0)'}}">
+            {{isMQTTSeverConnect?'已连接':'未连接'}}
+          </view>
+        </view>
+      <!--传感器设备ui-->
+        <view class='title_style'>
+          传感器设备
+        </view>
+        <view class="sensor-system">
+            <view wx:for="{{sensorList}}" class="system-info">
+                <view class="sensors-system-box1">
+                      <image src="{{item.img}}" style="height: 80rpx;" mode="" />
+                </view>
+                <view class="sensors-system-box2">
+                      <view style="font-weight: 500;">{{item.parameter}}({{item.unit}})</view>
+                      <view style="font-size: 50rpx; font-weight: 600;">{{item.value}}</view>
+                      <view style="color: gray;"> {{item.name}} </view>
+                </view>
+            </view>
+        </view>
+
+        <!--主要服务-->
+        <view class="title_style">主要服务</view>
+        <van-dialog id="van-dialog" />
+        <swiper class="service-swiper" circular="false" indicator-dots="true" autoplay="false">
+          <block wx:for="{{chunkedOtherList}}" wx:key="index">
+            <swiper-item>
+              <view class="other-system">
+                <view 
+                  wx:for="{{item}}" 
+                  wx:key="idx" 
+                  class="other-info" 
+                  bindtap="onOtherSystemTap" 
+                  data-item="{{item}}"
+                >
+                  <view class="other-system-box1">
+                    <image 
+                      src="{{item.img}}" 
+                      class="{{item.idx === 2 && item.status === '有紧急情况' ? 'flash-icon' : ''}}" 
+                      style="height: 65rpx;" 
+                      mode="heightFix" />
+                  </view>
+                  <view>
+                    <view class="other-system-box-title">{{item.title}}</view>
+                        <view 
+                              wx:if="{{item.idx === 2}}" 
+                              class="status-text {{item.status === '有紧急情况' ? 'flash-text' : 'normal-text'}}" 
+                              style="margin-left: 40rpx; margin-top: 15rpx;">
+                              {{item.status}}
+                        </view>                    
+                    <view wx:else  class="other-system-box-name">{{item.name}}</view>
+                  </view>
+                </view>
+              </view>
+            </swiper-item>
+          </block>
+        </swiper>
+      <!--安全设备ui-->
+        <view class='title_style'>
+          安全设备
+        </view>
+            <!--指纹认证-->
+        <view class="security-devices" >
+          <view class="flex" style="display: flex;justify-content: space-between; ">
+              <view style="display: flex;justify-content: space-between; ">
+                  <image src="{{securityList[0].img}}" style="width: 80rpx; margin:10rpx 8rpx 0;" mode="widthFix" />
+                  <view>{{securityList[0].name}} </view>
+              </view>
+              <view>
+                <view style=" margin-right:23rpx;color:{{securityList[0].isOpen?'rgb(19, 218, 45)':'rgb(192,0,0)'}}  ">
+                    {{securityList[0].isOpen?'已认证':'未认证'}}
+                </view>
+              </view>
+          </view>
+        </view>
+            <!--药箱门禁-->
+        <view class="security-devices" >
+          <view class="flex" style="display: flex;justify-content: space-between; ">
+                <view style="display: flex;justify-content: space-between; ">
+                      <image src="{{securityList[1].img}}" style="width: 60rpx; margin:20rpx 12rpx 0;" mode="widthFix" />
+                      <view>{{securityList[1].name}} </view>
+                </view>
+                <view>
+                    <view style=" margin-right:23rpx;color:{{securityList[1].isOpen?'rgb(19, 218, 45)':'rgb(192,0,0)'}}  ">
+                        {{securityList[1].isOpen?'已解锁':'未解锁'}}
+                    </view>
+                </view>
+          </view>
+        </view>
+
+
+</view>
+
+
+<!--MQTT连接显示弹窗-->
+<van-popup show="{{ mqttConnectDialog }}" position="bottom" round custom-style="height: 70%;" bind:close="onMqttClose">
+  <view>
+    <van-cell-group>
+      <van-field label="deviceName" model:value="{{deviceName}}" placeholder="请输入设备名" />
+      <van-field label="productKey" model:value="{{productKey}}" placeholder="请输入产品密钥" />
+      <van-field label="deviceSecret" model:value="{{deviceSecret}}" placeholder="请输入设备密钥" />
+    </van-cell-group>
+  </view>
+  <view class="small_botton_style">
+    <van-button color="{{isMQTTSeverConnect?'#44505c':'#5BC8FE'}}" type="primary" size="small" bind:tap="onClick_connect">连接</van-button>
+    <van-button color="{{isMQTTSeverConnect?'#5BC8FE':'#44505c'}}" type="primary" bind:tap="onClick_disconnect" size="small">断开</van-button>
+  </view>
+  <view class='sub_topic'> 订阅主题
+  </view>
+  <van-cell-group>
+    <van-field model:value="{{ topicGet }}" placeholder="请输入订阅地址" />
+    <view class="small_botton_style">
+      <van-button color="{{isTopicSubscribe?'#44505c':'#5BC8FE'}}" type="primary" size="small" bind:tap="onClick_SubOne">订阅</van-button>
+      <van-button color="{{isTopicSubscribe?'#5BC8FE':'#44505c'}}" type="primary" bind:tap="onClick_unSubOne" size="small">取消</van-button>
+    </view>
+    <view class="sub_topic">
+      发布主题
+    </view>
+    <van-field model:value="{{ topicPost }}" placeholder="请输入发布地址" bind:change="onChange" />
+    <view class="small_botton_style">
+      <van-button color="{{isTopicModify?'#44505c':'#5BC8FE'}}" type="primary" bind:tap="onClick_confirmPost" size="small">确认</van-button>
+      <van-button color="{{isTopicModify?'#5BC8FE':'#44505c'}}" type="primary" bind:tap="onClick_modifyPost" size="small">修改</van-button>
+    </view>
+  </van-cell-group>
+</van-popup>
+
+<!-- 服药提醒弹窗-->
+<van-popup 
+  show="{{ ReminderDialog }}" 
+  position="center" 
+  round="true" 
+  custom-style="padding: 20px; width: 80% ; height: 70%;" 
+  bind:close="onReminderClose">
+  <view>
+    <view class="Time_title">⏰当前时间：{{currentTimeStr}}</view>
+    <text style="font-weight:bold; font-size: 35rpx;margin-top: 30rpx;">以下药物尚未服完：</text>   
+    <block wx:if="{{ reminderList.length === 0 }}">
+      <view style="margin-top: 10px; color: #888;">今天的药物都已服用完毕 🎉</view>
+    </block>
+    <block wx:for="{{ reminderList }}" wx:key="index">
+        <view style="margin-bottom: 12px; padding: 12px; background: #f1f3f5; border-radius: 10px;">
+            <view>药品名称：{{ item.name }}</view><br/>
+            <view>应服次数：{{ item.take_time.length }} 次</view><br/>
+            <view>已服次数：{{ item.taken_times }} 次</view><br/>
+            <view>格子编号：{{ item.number }}</view><br/>
+            <block wx:if="{{ item.overdue }}">
+              <text style="color: red; font-weight: bold;">⚠ 您已超过服药时间（{{item.expiredTime}}）</text>
+            </block>
+            <view style="color: #2c6;">下一次服药时间：{{item.nextTime === '无' ? '无' : item.nextTime}}</view>
+        </view>
+    </block>
+  </view>
+</van-popup>
+
+

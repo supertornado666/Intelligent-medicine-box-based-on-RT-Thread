@@ -1,0 +1,167 @@
+/**index.wxss**/
+.head_box{
+  display:flex;
+  padding-top: 60rpx;
+  margin-left: 20rpx;
+}
+
+.head_box >image{
+  width: 110rpx;
+  height:110rpx;
+}
+
+.head_box >view{
+  font-size: 38rpx;
+  font-weight: 600;
+  line-height: 110rpx;
+}
+
+.mqtt_box{
+  display: flex;
+  padding: 0 30rpx;
+  justify-content: space-between;
+  height: 100rpx;
+  margin:23rpx 32rpx 0;
+  box-shadow: 0 8rpx 20rpx  0 rgba(0,0,0,0.3);
+  border-radius:32rpx;  
+  font-size: 38rpx; 
+  line-height: 100rpx;
+  font-weight: 500;
+}
+
+.small_botton_style{
+  margin: 0 5% 20rpx 5%;
+  display: flex;
+  justify-content: space-around;
+}
+.van-button{
+  width: 250rpx;
+}
+
+.sub_topic{
+  font-size: 32rpx;
+  margin-left: 35rpx;
+}
+
+.title_style{
+  margin: 20rpx 0 20rpx 30rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+.sensor-system{
+  display: flex;
+  margin: 0 0 32rpx 32rpx;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.system-info{
+  display: flex;
+  width: 43%;
+  height: 200rpx;
+  box-shadow: 0 8rpx 20rpx 0 rgba(0, 0, 0, 0.3);
+  border-radius: 32rpx;    
+  background-color: white;
+  margin: 0 2.5% 20rpx 1%;
+}
+.sensors-system-box1{
+  margin: 0 0 30rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+}
+
+.sensors-system-box2>view{
+  margin-top: 10rpx;
+  margin-left: 30rpx;
+  width: 160rpx;
+}
+
+.security-devices{
+  height: 100rpx;
+  line-height: 100rpx;
+  margin: 32rpx 32rpx 0;
+  box-shadow: 0 8rpx 20rpx 0 rgba(0, 0, 0, 0.3);
+  border-radius: 32rpx;   
+  background-color: white;
+}
+
+.other-system{
+  display: flex;
+  margin: 0 0 32rpx 32rpx;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.other-info{
+  display: flex;
+  width: 43%;
+  height: 200rpx;
+  box-shadow: 0 8rpx 20rpx 0 rgba(0, 0, 0, 0.3);
+  border-radius: 32rpx;    
+  background-color: white;
+  margin: 0 2.5% 20rpx 1%;
+}
+.other-system-box1{
+  margin: 0 0 30rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+}
+
+.other-system-box-title{
+  margin-top: 40rpx;
+  margin-left: 40rpx;
+  width: 160rpx;
+  font-weight: 600;
+}
+.other-system-box-name{
+  color: gray; 
+  font-size:25rpx ;
+  margin-left: 40rpx;
+  margin-top: 15rpx;
+}
+
+.Time_title{
+  font-size: 30rpx;
+  margin-left: 25%;
+}
+.service-swiper {
+  height: 450rpx; /* 适当调节 */
+  width: 100%;
+}
+/* 图标闪烁动画样式 */
+.flash-icon {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+/* 红色文字闪烁 */
+@keyframes flashText {
+  0%, 100% {
+    color: #ff0000;
+  }
+  50% {
+    color: #ffffff;
+  }
+}
+.flash-text {
+  animation: flashText 1s infinite;
+}
+/* 正常绿色文字样式 */
+.normal-text {
+  color: #13da2d;
+}
+/* 通用状态文字样式 */
+.status-text {
+  font-size: 26rpx;
+  font-weight: bold;
+}

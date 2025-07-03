@@ -1,0 +1,43 @@
+/* pages/login/login.wxss */
+page {
+  background-color: #f5f6fa; 
+}
+.login-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 300rpx;
+  align-items: center;
+}
+
+.login-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-bottom: 60rpx;
+  color: #333;
+}
+
+.login-input {
+  width: 100%;
+  max-width: 600rpx;
+  height: 90rpx;
+  margin-bottom: 40rpx;
+  padding: 0 30rpx;
+  font-size: 28rpx;
+  border: 1rpx solid #ccc;
+  border-radius: 16rpx;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.login-button {
+  width: 100%;
+  max-width: 600rpx;
+  height: 90rpx;
+  background-color: #6699cc;
+  color: white;
+  font-size: 32rpx;
+  border: none;
+  border-radius: 16rpx;
+  font-weight: bold;
+  margin-top: 20rpx;
+}

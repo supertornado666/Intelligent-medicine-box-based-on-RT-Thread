@@ -1,0 +1,4 @@
+/* packageA/drug_record/drug_record.wxss */
+.intro_title{
+  margin-top: 100rpx;
+}
